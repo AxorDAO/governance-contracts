@@ -1,0 +1,68 @@
+{
+  "name": "@axor/governance",
+  "version": "1.0.0",
+  "description": "axor governance smart contracts",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "clean": "rm -rf artifacts cache dist types",
+    "compile": "SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 npx hardhat compile",
+    "coverage": "SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 npx hardhat coverage",
+    "abi": "SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 npx hardhat export-abi",
+    "fix": "npm run lint -- --fix",
+    "lint": "eslint --ext .ts,.js .",
+    "test": "SKIP_LOAD=true TS_NODE_TRANSPILE_ONLY=1 npx hardhat test",
+    "test:full": "STAKING_TESTS_CHECK_INVARIANTS=true HARDHAT_SIMULATE_AFFECTED_STAKERS=99 npm run test",
+    "test:fork": "FORK_MAINNET=true npm run test:full"
+  },
+  "keywords": [
+    "axor",
+    "arbitrum"
+  ],
+  "author": "AxorDAO",
+  "files": [
+    "/dist"
+  ],
+  "dependencies": {
+    "@chainlink/contracts": "^0.2.1",
+    "@cosmjs/encoding": "^0.31.3",
+    "axios": "^0.24.0",
+    "cids": "^1.1.9",
+    "dotenv": "^10.0.0",
+    "ethereum-multicall": "^2.9.0",
+    "graphql": "^16.2.0",
+    "hardhat-abi-exporter": "^2.4.0",
+    "isomorphic-unfetch": "^3.1.0",
+    "urql": "^2.0.6"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-verify": "^1.1.1",
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@typechain/ethers-v5": "^7.1.0",
+    "@typechain/hardhat": "^2.3.0",
+    "@types/dirty-chai": "^2.0.2",
+    "@types/lodash": "^4.14.172",
+    "@types/luxon": "^2.0.4",
+    "@types/mocha": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
+    "bignumber.js": "^9.0.1",
+    "chai": "^4.3.4",
+    "dirty-chai": "^2.0.1",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-airbnb-typescript": "^14.0.0",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-no-only-tests": "^2.6.0",
+    "eth-sig-util": "^3.0.1",
+    "ethereum-waffle": "^3.4.0",
+    "hardhat": "^2.17.2",
+    "lodash": "^4.17.21",
+    "luxon": "^2.0.2",
+    "reflect-metadata": "^0.1.13",
+    "solidity-coverage": "^0.7.17",
+    "ts-node": "^10.9.1",
+    "typechain": "^5.1.2",
+    "typescript": "^4.4.3"
+  }
+}

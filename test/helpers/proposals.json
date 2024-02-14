@@ -1,0 +1,8 @@
+{
+  "updateMerkleDistributorRewardsParametersProposal": 0,
+  "OpsTrustViaProposal": 1,
+  "OpsTrustViaProposalV2": 3,
+  "updateMerkleDistributorRewardsParametersDIP24Proposal": 4,
+  "updateMerkleDistributorRewardsParametersV2Proposal": 2,
+  "createUpgradeGovernanceStrategyV2Proposal": 5
+}

@@ -1,0 +1,21 @@
+.DS_Store
+.coverage*
+.env.local
+.env
+.idea
+.vscode
+coverage.json
+deployed-contracts.json
+
+/abi/
+/artifacts/
+/build/
+/cache/
+/coverage/
+/dist/
+/node_modules/
+/types/
+
+# VIM
+*.swo
+*.swp
