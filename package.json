@@ -1,5 +1,5 @@
 {
-  "name": "@axor/governance",
+  "name": "@axor-dao/governance",
   "version": "1.0.0",
   "description": "axor governance smart contracts",
   "main": "dist/src/index.js",
