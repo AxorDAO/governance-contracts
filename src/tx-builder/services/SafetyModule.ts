@@ -20,7 +20,10 @@ import {
   tSafetyModuleAddresses,
   Network,
 } from '../types';
-import { parseNumberToString, parseNumberToEthersBigNumber } from '../utils/parsings';
+import {
+  parseNumberToString,
+  parseNumberToEthersBigNumber,
+} from '../utils/parsings';
 import { StakingValidator } from '../validators/methodValidators';
 import {
   IsEthAddress,
@@ -32,7 +35,6 @@ import BaseService from './BaseService';
 import ERC20Service from './ERC20';
 
 export default class SafetyModule extends BaseService<SafetyModuleV1> {
-
   readonly stakingContractAddress: string;
   readonly erc20Service: ERC20Service;
   private _stakedToken: string | null;
@@ -54,7 +56,9 @@ export default class SafetyModule extends BaseService<SafetyModuleV1> {
     if (isHardhatNetwork && !hardhatSafetyModuleAddresses) {
       throw new Error('Must specify staking addresses when on hardhat network');
     }
-    const networkStakingAddresses: tSafetyModuleAddresses = isHardhatNetwork ? hardhatSafetyModuleAddresses! : stakingAddresses[network];
+    const networkStakingAddresses: tSafetyModuleAddresses = isHardhatNetwork
+      ? hardhatSafetyModuleAddresses!
+      : stakingAddresses[network];
     this.stakingContractAddress = networkStakingAddresses.SAFETY_MODULE_ADDRESS;
   }
 
@@ -79,9 +83,9 @@ export default class SafetyModule extends BaseService<SafetyModuleV1> {
   @StakingValidator
   public async stake(
     @IsEthAddress() user: tEthereumAddress,
-      @IsPositiveAmount() amount: tStringCurrencyUnits,
-      @Optional @IsEthAddress() onBehalfOf?: tEthereumAddress,
-      gasLimit?: number,
+    @IsPositiveAmount() amount: tStringCurrencyUnits,
+    @Optional @IsEthAddress() onBehalfOf?: tEthereumAddress,
+    gasLimit?: number,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
     const { approve } = this.erc20Service;
@@ -138,8 +142,8 @@ export default class SafetyModule extends BaseService<SafetyModuleV1> {
   @StakingValidator
   public async withdrawStake(
     @IsEthAddress() user: tEthereumAddress,
-      @IsPositiveOrMinusOneAmount() amount: tStringCurrencyUnits,
-      @Optional @IsEthAddress() recipient?: tEthereumAddress,
+    @IsPositiveOrMinusOneAmount() amount: tStringCurrencyUnits,
+    @Optional @IsEthAddress() recipient?: tEthereumAddress,
   ): Promise<EthereumTransactionTypeExtended[]> {
     let convertedAmount: tStringDecimalUnits;
     if (amount === '-1') {
@@ -159,7 +163,10 @@ export default class SafetyModule extends BaseService<SafetyModuleV1> {
     } else {
       txCallback = this.generateTxCallback({
         rawTxMethod: () =>
-          this.contract.populateTransaction.withdrawStake(recipient || user, convertedAmount),
+          this.contract.populateTransaction.withdrawStake(
+            recipient || user,
+            convertedAmount,
+          ),
         from: user,
         gasSurplus: 20,
       });
@@ -174,13 +181,15 @@ export default class SafetyModule extends BaseService<SafetyModuleV1> {
     ];
   }
 
-
   @StakingValidator
   public async requestWithdrawal(
     @IsEthAddress() user: tEthereumAddress,
-      @IsPositiveAmount() amount: tStringCurrencyUnits,
+    @IsPositiveAmount() amount: tStringCurrencyUnits,
   ): Promise<EthereumTransactionTypeExtended[]> {
-    const convertedAmount: tStringDecimalUnits = parseNumberToString(amount, AXOR_TOKEN_DECIMALS);
+    const convertedAmount: tStringDecimalUnits = parseNumberToString(
+      amount,
+      AXOR_TOKEN_DECIMALS,
+    );
 
     const txCallback: () => Promise<transactionType> = this.generateTxCallback({
       rawTxMethod: () =>
@@ -201,7 +210,7 @@ export default class SafetyModule extends BaseService<SafetyModuleV1> {
   @StakingValidator
   public async claimRewards(
     @IsEthAddress() user: tEthereumAddress,
-      @Optional @IsEthAddress() recipient?: tEthereumAddress,
+    @Optional @IsEthAddress() recipient?: tEthereumAddress,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txCallback: () => Promise<transactionType> = this.generateTxCallback({
       rawTxMethod: () =>
@@ -220,50 +229,64 @@ export default class SafetyModule extends BaseService<SafetyModuleV1> {
   }
 
   public async getTotalStake(): Promise<tStringDecimalUnits> {
-    const currentActiveBalance: BigNumber = await this.contract.getTotalActiveBalanceCurrentEpoch();
+    const currentActiveBalance: BigNumber =
+      await this.contract.getTotalActiveBalanceCurrentEpoch();
     return formatUnits(currentActiveBalance, AXOR_TOKEN_DECIMALS);
   }
 
   public async getRewardsPerSecond(): Promise<tStringDecimalUnits> {
-    const rewardsPerSecond : BigNumber = await this.contract.getRewardsPerSecond();
+    const rewardsPerSecond: BigNumber =
+      await this.contract.getRewardsPerSecond();
     return formatUnits(rewardsPerSecond, AXOR_TOKEN_DECIMALS);
   }
 
   public async allowance(user: tEthereumAddress): Promise<tStringDecimalUnits> {
-    return this.erc20Service.allowance(await this.getStakedToken(), user, this.stakingContractAddress);
+    return this.erc20Service.allowance(
+      await this.getStakedToken(),
+      user,
+      this.stakingContractAddress,
+    );
   }
 
-  public async getUserStake(user: tEthereumAddress): Promise<tStringDecimalUnits> {
+  public async getUserStake(
+    user: tEthereumAddress,
+  ): Promise<tStringDecimalUnits> {
     return this.erc20Service.balanceOf(this.stakingContractAddress, user);
   }
 
-  public async getUserBalanceOfStakedToken(user: tEthereumAddress): Promise<tStringDecimalUnits> {
+  public async getUserBalanceOfStakedToken(
+    user: tEthereumAddress,
+  ): Promise<tStringDecimalUnits> {
     const stakedTokenAddress = await this.getStakedToken();
     return this.erc20Service.balanceOf(stakedTokenAddress, user);
   }
 
-  public async getUserStakeAvailableToWithdraw(user: tEthereumAddress): Promise<tStringDecimalUnits> {
-    const userStakeAvailableToWithdraw: BigNumber = await this.contract.getStakeAvailableToWithdraw(user);
+  public async getUserStakeAvailableToWithdraw(
+    user: tEthereumAddress,
+  ): Promise<tStringDecimalUnits> {
+    const userStakeAvailableToWithdraw: BigNumber =
+      await this.contract.getStakeAvailableToWithdraw(user);
     return formatUnits(userStakeAvailableToWithdraw, AXOR_TOKEN_DECIMALS);
   }
 
-  public async getUserStakePendingWithdraw(user: tEthereumAddress): Promise<tStringDecimalUnits> {
-    const [
-      currentEpochInactive,
-      nextEpochInactive,
-    ]: [
-      BigNumber,
-      BigNumber,
-    ] = await Promise.all([
-      this.contract.getInactiveBalanceCurrentEpoch(user),
-      this.contract.getInactiveBalanceNextEpoch(user),
-    ]);
-    const userStakePendingWithdrawal: BigNumber = nextEpochInactive.sub(currentEpochInactive);
+  public async getUserStakePendingWithdraw(
+    user: tEthereumAddress,
+  ): Promise<tStringDecimalUnits> {
+    const [currentEpochInactive, nextEpochInactive]: [BigNumber, BigNumber] =
+      await Promise.all([
+        this.contract.getInactiveBalanceCurrentEpoch(user),
+        this.contract.getInactiveBalanceNextEpoch(user),
+      ]);
+    const userStakePendingWithdrawal: BigNumber =
+      nextEpochInactive.sub(currentEpochInactive);
     return formatUnits(userStakePendingWithdrawal, AXOR_TOKEN_DECIMALS);
   }
 
-  public async getUserUnclaimedRewards(user: tEthereumAddress): Promise<tStringDecimalUnits> {
-    const userUnclaimedRewards: BigNumber = await this.contract.callStatic.claimRewards(user, { from: user });
+  public async getUserUnclaimedRewards(
+    user: tEthereumAddress,
+  ): Promise<tStringDecimalUnits> {
+    const userUnclaimedRewards: BigNumber =
+      await this.contract.callStatic.claimRewards(user, { from: user });
     return formatUnits(userUnclaimedRewards, AXOR_TOKEN_DECIMALS);
   }
 

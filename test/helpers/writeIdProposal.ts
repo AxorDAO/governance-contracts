@@ -1,8 +1,14 @@
 import * as fs from 'fs/promises';
 
-const proposalFile = __dirname + `/proposals.json`;
+const proposalFile = __dirname + '/proposals.json';
 
-export const writeIdProposal = async ({ id, proposal }: { id: number; proposal: string }) => {
+export const writeIdProposal = async ({
+  id,
+  proposal,
+}: {
+  id: number;
+  proposal: string;
+}) => {
   try {
     const fileContent = await fs.readFile(proposalFile, 'utf-8');
     const proposals = JSON.parse(fileContent);
@@ -16,8 +22,9 @@ export const writeIdProposal = async ({ id, proposal }: { id: number; proposal: 
   }
 };
 
-
-export const readIdFromProposal = async (proposal: string): Promise<number | null> => {
+export const readIdFromProposal = async (
+  proposal: string,
+): Promise<number | null> => {
   try {
     const fileContent = await fs.readFile(proposalFile, 'utf-8');
     const proposals = JSON.parse(fileContent);
@@ -29,3 +36,4 @@ export const readIdFromProposal = async (proposal: string): Promise<number | nul
     return 0;
   }
 };
+

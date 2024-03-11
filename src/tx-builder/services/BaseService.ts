@@ -45,78 +45,82 @@ export default abstract class BaseService<T extends Contract> {
     return block.timestamp;
   };
 
-  readonly generateTxCallback = ({
-    rawTxMethod,
-    from,
-    value,
-    gasSurplus,
-    action,
-    gasLimit,
-  }: TransactionGenerationMethod): (() => Promise<transactionType>) => async () => {
-    const txRaw: PopulatedTransaction = await rawTxMethod();
-
-    const tx: transactionType = {
-      ...txRaw,
-      gasLimit: txRaw.gasLimit?.toNumber(),
-      gasPrice: txRaw.gasPrice?.toNumber(),
+  readonly generateTxCallback =
+    ({
+      rawTxMethod,
       from,
-      value: value || DEFAULT_NULL_VALUE_ON_TX,
+      value,
+      gasSurplus,
+      action,
+      gasLimit,
+    }: TransactionGenerationMethod): (() => Promise<transactionType>) =>
+    async () => {
+      const txRaw: PopulatedTransaction = await rawTxMethod();
+
+      const tx: transactionType = {
+        ...txRaw,
+        gasLimit: txRaw.gasLimit?.toNumber(),
+        gasPrice: txRaw.gasPrice?.toNumber(),
+        from,
+        value: value || DEFAULT_NULL_VALUE_ON_TX,
+      };
+
+      if (gasLimit) {
+        tx.gasLimit = gasLimit;
+      } else {
+        tx.gasLimit = (
+          await estimateGas(tx, this.config, gasSurplus)
+        ).toNumber();
+      }
+
+      if (
+        action &&
+        gasLimitRecommendations[action] &&
+        BigNumber.from(tx.gasLimit).lte(gasLimitRecommendations[action].limit)
+      ) {
+        tx.gasLimit = parseInt(gasLimitRecommendations[action].recommended);
+      }
+
+      return tx;
     };
 
-    if (gasLimit) {
-      tx.gasLimit = gasLimit;
-    } else {
-      tx.gasLimit = (await estimateGas(tx, this.config, gasSurplus)).toNumber();
-    }
+  readonly generateTxPriceEstimation =
+    (
+      txs: EthereumTransactionTypeExtended[],
+      txCallback: () => Promise<transactionType>,
+      action: string = ProtocolAction.default,
+    ): GasResponse =>
+    async (force = false) => {
+      try {
+        const gasPrice = await getGasPrice(this.config);
+        const hasPendingApprovals = txs.find(
+          (tx) => tx.txType === eEthereumTxType.ERC20_APPROVAL,
+        );
+        if (!hasPendingApprovals || force) {
+          const { gasLimit, gasPrice: gasPriceProv }: transactionType =
+            await txCallback();
+          if (!gasLimit) {
+            // If we don't recieve the correct gas we throw a error
+            throw new Error('Transaction calculation error');
+          }
 
-    if (
-      action &&
-      gasLimitRecommendations[action] &&
-      BigNumber.from(tx.gasLimit).lte(gasLimitRecommendations[action].limit)
-    ) {
-      tx.gasLimit = parseInt(gasLimitRecommendations[action].recommended);
-    }
-
-    return tx;
-  };
-
-  readonly generateTxPriceEstimation = (
-    txs: EthereumTransactionTypeExtended[],
-    txCallback: () => Promise<transactionType>,
-    action: string = ProtocolAction.default,
-  ): GasResponse => async (force = false) => {
-    try {
-      const gasPrice = await getGasPrice(this.config);
-      const hasPendingApprovals = txs.find(
-        (tx) => tx.txType === eEthereumTxType.ERC20_APPROVAL,
-      );
-      if (!hasPendingApprovals || force) {
-        const {
-          gasLimit,
-          gasPrice: gasPriceProv,
-        }: transactionType = await txCallback();
-        if (!gasLimit) {
-          // If we don't recieve the correct gas we throw a error
-          throw new Error('Transaction calculation error');
+          return {
+            gasLimit: gasLimit.toString(),
+            gasPrice: gasPriceProv
+              ? gasPriceProv.toString()
+              : gasPrice.toString(),
+          };
         }
-
         return {
-          gasLimit: gasLimit.toString(),
-          gasPrice: gasPriceProv
-            ? gasPriceProv.toString()
-            : gasPrice.toString(),
+          gasLimit: gasLimitRecommendations[action].recommended,
+          gasPrice: gasPrice.toString(),
         };
+      } catch (error) {
+        console.error(
+          'Calculate error on calculate estimation gas price.',
+          error,
+        );
+        return null;
       }
-      return {
-        gasLimit: gasLimitRecommendations[action].recommended,
-        gasPrice: gasPrice.toString(),
-      };
-    } catch (error) {
-      console.error(
-        'Calculate error on calculate estimation gas price.',
-        error,
-      );
-      return null;
-    }
-  };
+    };
 }

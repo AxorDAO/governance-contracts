@@ -1,10 +1,7 @@
 import { BigNumber, BigNumberish } from 'ethers';
 
 import config from '../../src/config';
-import {
-  LiquidityStakingV1,
-  SafetyModuleV1,
-} from '../../types';
+import { LiquidityStakingV1, SafetyModuleV1 } from '../../types';
 
 type GenericStakingModule = LiquidityStakingV1 | SafetyModuleV1;
 
@@ -61,9 +58,9 @@ export class StoredBalance {
   async increaseNext(amount: BigNumberish): Promise<void> {
     await this.load();
     this.log(
-      `${this.label}: (${this.current}, ${this.next}) -> (${this.current}, ${this.next.add(
-        amount,
-      )}})`,
+      `${this.label}: (${this.current}, ${this.next}) -> (${
+        this.current
+      }, ${this.next.add(amount)}})`,
     );
     this.next = this.next.add(amount);
   }
@@ -71,9 +68,9 @@ export class StoredBalance {
   async decreaseNext(amount: BigNumberish): Promise<void> {
     await this.load();
     this.log(
-      `${this.label}: (${this.current}, ${this.next}) -> (${this.current}, ${this.next.sub(
-        amount,
-      )}})`,
+      `${this.label}: (${this.current}, ${this.next}) -> (${
+        this.current
+      }, ${this.next.sub(amount)}})`,
     );
     this.next = this.next.sub(amount);
   }

@@ -37,7 +37,7 @@ contract AxorToken is
 
   // ============ Constants ============
 
-  string internal constant NAME = 'Axor';
+  string internal constant NAME = 'Axor Token';
   string internal constant SYMBOL = 'AXR';
 
   uint256 public constant INITIAL_SUPPLY = 20_000_000_000 ether;

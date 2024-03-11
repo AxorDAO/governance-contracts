@@ -1,6 +1,5 @@
 import { Role } from '../types';
 import { getRole } from './util';
-import { fromBech32, toHex } from '@cosmjs/encoding';
 
 export const ONE_DAY_SECONDS = 60 * 60 * 24;
 export const ONE_DAY_BLOCKS = 6570; // Assume 13s per block
@@ -29,7 +28,7 @@ export const COMMUNITY_TREASURY_VESTER_BURN_ADDRESS = '0x00000000000000000000000
 export const EXPECTED_AVG_BLOCKTIME_LOWER_BOUND_S = 12.05;
 
 // AXOR chain address conversion logic copied from here:
-export const COMMUNITY_TREASURY_AXOR_CHAIN_ADDRESS_BYTES = `0x0000000000000000000000000000000000000002`
+export const COMMUNITY_TREASURY_AXOR_CHAIN_ADDRESS_BYTES = '0x0000000000000000000000000000000000000002';
 
 // DIP_6_IPFS_HASH taken from the link below:
 export const DIP_6_IPFS_HASH = '0xb659e2db02977540be8821312b75aa2e18d9e8ab60a2708b3d64e7fd5bc7c9bd';

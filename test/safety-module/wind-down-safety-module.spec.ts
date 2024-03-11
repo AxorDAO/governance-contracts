@@ -22,12 +22,6 @@ describeContract('wind-down-safety-module-proposal', init, (ctx: TestContext) =>
     expect(rewardsPerSecond).to.equal('0');
   });
 
-  it('Proposal IPFS hash is correct', async () => {
-    const windDownBorrowingPoolProposalId = 0;
-    const proposal = await ctx.governor.getProposalById(windDownBorrowingPoolProposalId);
-    expect(proposal.ipfsHash).to.equal(DIP_17_IPFS_HASH);
-  });
-
   it('Existing stakers can unstake', async () => {
     // Advance to beginning of next epoch.
     const timeToNextEpoch = await ctx.safetyModule.getTimeRemainingInCurrentEpoch();

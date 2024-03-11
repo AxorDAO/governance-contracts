@@ -2,7 +2,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 import {
   AxorGovernor__factory,
-  SafetyModuleV2__factory,
+  SafetyModuleV1__factory,
 } from '../../types';
 import { Executor__factory } from '../../types/factories/Executor__factory';
 import { getDeployerSigner } from '../deploy-config/get-deployer-address';
@@ -29,7 +29,7 @@ export async function createWindDownSafetyModuleProposal({
   const deployer = signer || await getDeployerSigner();
   const deployerAddress = deployer.address;
 
-  const safetyModule = new SafetyModuleV2__factory(deployer).attach(safetyModuleAddress);
+  const safetyModule = new SafetyModuleV1__factory(deployer).attach(safetyModuleAddress);
   const shortTimelock = new Executor__factory(deployer).attach(shortTimelockAddress);
   const governor = new AxorGovernor__factory(deployer).attach(governorAddress);
 

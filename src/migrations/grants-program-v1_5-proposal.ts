@@ -1,8 +1,7 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-import {
-  AxorGovernor__factory,
-} from '../../types';
+import { AxorGovernor__factory } from '../../types';
 import { getDeployConfig } from '../deploy-config';
 import { getDeployerSigner } from '../deploy-config/get-deployer-address';
 import { getHre } from '../hre';
@@ -19,31 +18,39 @@ export async function createGrantsProgramV1_5Proposal({
   dgpMultisigAddress,
   signer,
 }: {
-  proposalIpfsHashHex: string,
-  axorTokenAddress: string,
-  governorAddress: string,
-  shortTimelockAddress: string,
-  communityTreasuryAddress: string,
-  dgpMultisigAddress: string,
-  signer?: SignerWithAddress,
+  proposalIpfsHashHex: string;
+  axorTokenAddress: string;
+  governorAddress: string;
+  shortTimelockAddress: string;
+  communityTreasuryAddress: string;
+  dgpMultisigAddress: string;
+  signer?: SignerWithAddress;
 }) {
   const hre = getHre();
   const deployConfig = getDeployConfig();
-  const deployer = signer || await getDeployerSigner();
+  const deployer = signer || (await getDeployerSigner());
   const deployerAddress = deployer.address;
-  log(`Creating Grants Program v1.5 proposal with proposer ${deployerAddress}.\n`);
+  log(
+    `Creating Grants Program v1.5 proposal with proposer ${deployerAddress}.\n`,
+  );
 
-  const governor = await new AxorGovernor__factory(deployer).attach(governorAddress);
+  const governor = new AxorGovernor__factory(deployer).attach(governorAddress);
   const proposalId = await governor.getProposalsCount();
   const proposal: Proposal = [
     shortTimelockAddress,
     [communityTreasuryAddress],
     ['0'],
     ['transfer(address,address,uint256)'],
-    [hre.ethers.utils.defaultAbiCoder.encode(
-      ['address', 'address', 'uint256'],
-      [axorTokenAddress, deployConfig.DGP_MULTISIG_ADDRESS, deployConfig.DGP_FUNDING_AMOUNT_v1_5],
-    )],
+    [
+      hre.ethers.utils.defaultAbiCoder.encode(
+        ['address', 'address', 'uint256'],
+        [
+          axorTokenAddress,
+          deployConfig.DGP_MULTISIG_ADDRESS,
+          deployConfig.DGP_FUNDING_AMOUNT_v1_5,
+        ],
+      ),
+    ],
     [false],
     proposalIpfsHashHex,
   ];

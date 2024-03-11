@@ -13,7 +13,7 @@ import {
   AxorGovernor__factory,
   AxorToken__factory,
 } from '../../types';
-import { SafetyModuleV2__factory } from '../../types/factories/SafetyModuleV2__factory';
+import { SafetyModuleV1__factory } from '../../types/factories/SafetyModuleV1__factory';
 import { advanceBlock, increaseTimeAndMine } from '../helpers/evm';
 
 export async function executeWindDownSafetyModuleViaProposal({
@@ -111,7 +111,7 @@ export async function executeWindDownSafetyModuleNoProposal({
   safetyModuleAddress: string,
 }): Promise<void> {
   const mockShortTimelock = await impersonateAndFundAccount(shortTimelockAddress);
-  const safetyModule = new SafetyModuleV2__factory(mockShortTimelock).attach(
+  const safetyModule = new SafetyModuleV1__factory(mockShortTimelock).attach(
     safetyModuleAddress,
   );
 

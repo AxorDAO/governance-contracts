@@ -99,7 +99,7 @@ export type ExecutorVotingData = {
   minimumQuorum: BigNumber;
   voteDifferential: BigNumber;
   executorVotingPrecision: BigNumber;
-  gracePeriod: BigNumber,
+  gracePeriod: BigNumber;
 };
 
 export type IPFSProposalData = {
@@ -126,58 +126,58 @@ export type UserRewardBalances = {
 };
 
 export type UserRewardsBalancesPerEpoch = {
-  [epoch: number]: UserRewardBalances,
+  [epoch: number]: UserRewardBalances;
 };
 
 export type PendingRootData = {
-  hasPendingRoot: boolean,
-  waitingPeriodEnd: number,  // 0 if no pending root
+  hasPendingRoot: boolean;
+  waitingPeriodEnd: number; // 0 if no pending root
 };
 
 export type EpochData = {
-  currentEpoch: number,
-  startOfEpochTimestamp: number,
-  endOfEpochTimestamp: number,
-  epochLength: number,
-  waitingPeriodLength: number,
+  currentEpoch: number;
+  startOfEpochTimestamp: number;
+  endOfEpochTimestamp: number;
+  epochLength: number;
+  waitingPeriodLength: number;
 };
 
 export type UserRewardsPerEpoch = {
-  [epoch: number]: tStringDecimalUnits,
+  [epoch: number]: tStringDecimalUnits;
 };
 
 export type UserRewardsData = {
-  rewardsPerEpoch: UserRewardsPerEpoch,
-  epochData: EpochData,
-  claimedRewards: tStringDecimalUnits,
-  newPendingRootRewards: tStringDecimalUnits,
-  pendingRootData: PendingRootData,
+  rewardsPerEpoch: UserRewardsPerEpoch;
+  epochData: EpochData;
+  claimedRewards: tStringDecimalUnits;
+  newPendingRootRewards: tStringDecimalUnits;
+  pendingRootData: PendingRootData;
 };
 
 export type ProposedRootMetadata = {
-  balances: UserRewardBalances,
-  ipfsCid: string,
+  balances: UserRewardBalances;
+  ipfsCid: string;
 };
 
 export type ActiveRootDataAndHistory = {
-  userBalancesPerEpoch: UserRewardsBalancesPerEpoch,
+  userBalancesPerEpoch: UserRewardsBalancesPerEpoch;
   // null if no root has breen promoted to active
-  activeMerkleTree: ActiveMerkleTree | null,
+  activeMerkleTree: ActiveMerkleTree | null;
 };
 
 export type ActiveMerkleTree = {
-  merkleTree: BalanceTree,
-  epoch: number,
+  merkleTree: BalanceTree;
+  epoch: number;
 };
 
 export type MerkleProof = {
-  cumulativeAmount: BigNumber,
-  merkleProof: BytesLike[],
+  cumulativeAmount: BigNumber;
+  merkleProof: BytesLike[];
 };
 
 export type ProposalDataAndState = {
-  proposal: GovProposal,
-  proposalState: ProposalState,
+  proposal: GovProposal;
+  proposalState: ProposalState;
 };
 
 export type Power = {

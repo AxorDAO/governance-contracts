@@ -3,10 +3,7 @@ import path from 'path';
 
 import * as dotenv from 'dotenv';
 import { HardhatUserConfig } from 'hardhat/config';
-import {
-  HardhatNetworkUserConfig,
-  HttpNetworkUserConfig,
-} from 'hardhat/types';
+import { HardhatNetworkUserConfig, HttpNetworkUserConfig } from 'hardhat/types';
 
 import config from './src/config';
 import { NetworkName } from './src/types';
@@ -29,8 +26,12 @@ const MNEMONIC_PATH = "m/44'/60'/0'/0";
 let MNEMONIC = process.env.MNEMONIC || '';
 if (MNEMONIC === '') {
   MNEMONIC = 'test test test test test test test test test test test test';
-  console.log('Note on-chain TXs cannot be created since a test mnemonic is being used that has no funds.');
-  console.log('If this was not intentional, re-run the script with a valid seed phrase stored in the MNEMONIC environment variable.');
+  console.log(
+    'Note on-chain TXs cannot be created since a test mnemonic is being used that has no funds.',
+  );
+  console.log(
+    'If this was not intentional, re-run the script with a valid seed phrase stored in the MNEMONIC environment variable.',
+  );
 }
 
 // Load hardhat tasks.
@@ -109,6 +110,7 @@ const hardhatConfig: HardhatUserConfig = {
   },
   networks: {
     sepolia: getRemoteNetworkConfig(NetworkName.sepolia, 11155111),
+    goerli: getRemoteNetworkConfig(NetworkName.goerli, 5),
     kovan: getRemoteNetworkConfig(NetworkName.kovan, 42),
     ropsten: getRemoteNetworkConfig(NetworkName.ropsten, 3),
     mainnet: getRemoteNetworkConfig(NetworkName.mainnet, 1),
@@ -122,6 +124,7 @@ const hardhatConfig: HardhatUserConfig = {
       // Uncomment these and set the environment variable if you want to verify contracts on Etherscan.
       // mainnet: process.env.MAINNET_ETHERSCAN_API_KEY!,
       sepolia: process.env.SEPOLIA_ETHERSCAN_API_KEY!,
+      goerli: process.env.SEPOLIA_ETHERSCAN_API_KEY!,
     },
   },
 };

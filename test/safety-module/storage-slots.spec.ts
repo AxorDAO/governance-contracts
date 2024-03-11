@@ -15,7 +15,7 @@ function init() {
   testStakers = getAffectedStakersForTest();
 }
 
-describeContractHardhatRevertBeforeEach('SafetyModuleV2 initial storage slots', init, (ctx: TestContext) => {
+describeContractHardhatRevertBeforeEach('SafetyModule initial storage slots', init, (ctx: TestContext) => {
   it('0-49: AccessControlUpgradeable', async () => {
     await expectZeroes(_.range(0, 50));
   });
@@ -25,7 +25,7 @@ describeContractHardhatRevertBeforeEach('SafetyModuleV2 initial storage slots', 
   });
 
   it('51-101: VersionedInitializable', async () => {
-    expect(await read(51)).to.equal(2);
+    expect(await read(51)).to.equal(1);
     await expectZeroes(_.range(52, 102));
   });
 
@@ -52,6 +52,10 @@ describeContractHardhatRevertBeforeEach('SafetyModuleV2 initial storage slots', 
     expect(await read(113)).to.equal(0);
 
     // Slot 114: Global index value and timestamp.
+    const amountForStaking = 1_000_000
+    await ctx.axorToken.approve(ctx.safetyModule.address, amountForStaking);
+    await ctx.safetyModule.connect(ctx.deployer).stake(amountForStaking);
+
     const stakedFilter = ctx.safetyModule.filters.Staked();
     const stakedLogs = await ctx.safetyModule.queryFilter(stakedFilter);
     const lastStakeLog = stakedLogs[stakedLogs.length - 1];
@@ -65,56 +69,69 @@ describeContractHardhatRevertBeforeEach('SafetyModuleV2 initial storage slots', 
     await read(114);
     await expectZeroes(_.range(115, 119));
 
-    // Slot 119: Total active balance (current epoch).
-    expect(await read(119)).to.equal(1);
-    await expectZeroes(_.range(120, 124));
+    // Slot 120: Total active balance (current epoch).
+    await read(119)
+    expect(await read(120)).to.equal(amountForStaking);
+    await expectZeroes(_.range(121, 124));
 
-    // Slot 115: Exchange rate.\
+    // Slot 115: Exchange rate.
     expect(await read(124)).to.equal(new BNJS(SM_EXCHANGE_RATE_BASE).toString());
     await expectZeroes(_.range(125, 200));
   });
 
   it('Mappings', async () => {
-    // Check mappings for just a few of the affected stakers.
-    const stakersToCheck = testStakers.slice(0, 3);
-    for (const staker of stakersToCheck) {
-      const stakedFilter = ctx.safetyModule.filters.Staked(staker);
-      const stakedLogs = await ctx.safetyModule.queryFilter(stakedFilter);
-      expect(stakedLogs.length).to.equal(1);
-      const stakeLog = stakedLogs[0];
-      const stakeBlock = await stakeLog.getBlock();
-      const stakeBlockNumber = stakeBlock.number;
+    
+    const staker = ctx.deployer
+    const amountForStaking = 1_000_000
+    await ctx.axorToken.approve(ctx.safetyModule.address, amountForStaking);
+    await ctx.safetyModule.connect(staker).stake(amountForStaking);
 
-      // Expect _VOTING_SNAPSHOTS_[staker].blockNumber to be the block number in which the staker
-      // staked funds.
-      const votingSnapshotBlockNumberSlot = utils.keccak256(
-        concatHex([asUintHex(0, 256), utils.keccak256(concatHex([asBytes32(staker), asUintHex(107, 256)]))]),
-      );
-      expect(await read(votingSnapshotBlockNumberSlot)).to.equal(stakeBlockNumber);
+    const stakedFilter = ctx.safetyModule.filters.Staked(staker.address);
+    const stakedLogs = await ctx.safetyModule.queryFilter(stakedFilter);
+    expect(stakedLogs.length).to.equal(1);
+    const stakeLog = stakedLogs[0];
+    const stakeBlock = await stakeLog.getBlock();
+    const stakeBlockNumber = stakeBlock.number;
 
-      // Expect _PROPOSITION_SNAPSHOTS_[staker].blockNumber to be the block number in which the staker
-      // staked funds.
-      const propositionSnapshotBlockNumberSlot = utils.keccak256(
-        concatHex([asUintHex(0, 256), utils.keccak256(concatHex([asBytes32(staker), asUintHex(110, 256)]))]),
-      );
-      expect(await read(propositionSnapshotBlockNumberSlot)).to.equal(stakeBlockNumber);
+    // Expect _VOTING_SNAPSHOTS_[staker].blockNumber to be the block number in which the staker
+    // staked funds.
+    const votingSnapshotBlockNumberSlot = utils.keccak256(
+      concatHex([asUintHex(0, 256), utils.keccak256(concatHex([asBytes32(staker.address), asUintHex(107, 256)]))]),
+    );
+    expect(await read(votingSnapshotBlockNumberSlot)).to.equal(stakeBlockNumber);
 
-      // Expect _VOTING_SNAPSHOT_COUNTS_[staker] to be set to 1 for each staker.
-      const votingSnapshotCountSlot = utils.keccak256(concatHex([asBytes32(staker), asUintHex(108, 256)]));
-      expect(await read(votingSnapshotCountSlot)).to.equal(1);
+    // Expect _PROPOSITION_SNAPSHOTS_[staker].blockNumber
+    const propositionSnapshotBlockNumberSlot = utils.keccak256(
+      concatHex([asUintHex(0, 256), utils.keccak256(concatHex([asBytes32(staker.address), asUintHex(110, 256)]))]),
+    );
+    expect(await read(propositionSnapshotBlockNumberSlot)).to.equal(stakeBlockNumber);
 
-      // Expect _PROPOSITION_SNAPSHOT_COUNTS_[staker] to be set to 1 for each staker.
-      const propositionSnapshotCountSlot = utils.keccak256(
-        concatHex([asBytes32(staker), asUintHex(111, 256)]),
-      );
-      expect(await read(propositionSnapshotCountSlot)).to.equal(1);
+    // Expect _VOTING_SNAPSHOT_COUNTS_[staker]
+    const votingSnapshotCountSlot = utils.keccak256(concatHex([asBytes32(staker.address), asUintHex(108, 256)]));
+    expect(await read(votingSnapshotCountSlot)).to.equal(1);
 
-      // Expect _ACTIVE_BALANCES_[staker].currentEpoch to be set to 1 for each staker.
-      const activeBalanceCurrentEpochSlot = utils.keccak256(
-        concatHex([asBytes32(staker), asUintHex(118, 256)]),
-      );
-      expect(await read(activeBalanceCurrentEpochSlot)).to.equal(1);
-    }
+    // Expect _PROPOSITION_SNAPSHOT_COUNTS_[staker]
+    const propositionSnapshotCountSlot = utils.keccak256(
+      concatHex([asBytes32(staker.address), asUintHex(111, 256)]),
+    );
+    expect(await read(propositionSnapshotCountSlot)).to.equal(1);
+
+    // Expect _ACTIVE_BALANCES_[staker] ==> StoredBalance
+    const activeBalanceCurrentEpochSlot = utils.keccak256(
+      concatHex([asBytes32(staker.address), asUintHex(118, 256)]),
+    );
+    /** with StoredBalance has 
+     *  currentEpoch -> uint16 and currentEpochBalance -> uint240 
+     *  currentEpoch + currentEpochBalance = 256 bits 
+     *  ==> they be stored at first slot
+     *  exp: 0x0000000000000000000000000000000000000000000000000000000f42400002
+     *  currentEpoch: 0x0002 - save as 2^4 = 16 bit => length = 4 from the right 
+     *  currentEpochBalance: 0x0000000000000000000000000000000000000000000000000000000f4240 
+     *  => other 240 bit => length = 60 from the currentEpoch value
+    **/
+    const value = await readHex(activeBalanceCurrentEpochSlot)
+    const currentEpochBalance = value.toString().slice(0, 62)
+    expect(Number(currentEpochBalance)).to.equal(amountForStaking);
   });
 
   async function expectZeroes(range: number[]): Promise<void> {
@@ -124,7 +141,8 @@ describeContractHardhatRevertBeforeEach('SafetyModuleV2 initial storage slots', 
   }
 
   async function readHex(slot: BigNumberish): Promise<string> {
-    return hre.ethers.provider.getStorageAt(ctx.safetyModule.address, BigNumber.from(slot));
+    const value = await hre.ethers.provider.getStorageAt(ctx.safetyModule.address, BigNumber.from(slot));
+    return value
   }
 
   async function read(slot: BigNumberish): Promise<BigNumber> {

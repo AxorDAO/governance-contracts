@@ -37,7 +37,7 @@ abstract contract LS1ERC20 is
     override
     returns (string memory)
   {
-    return 'stkUSDC';
+    return 'sUSDC';
   }
 
   function decimals()

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { Multicall } from 'ethereum-multicall';
 import { providers, BytesLike, PopulatedTransaction } from 'ethers';
 
@@ -24,20 +25,20 @@ export enum UserCooldownStatus {
 }
 
 export type GovernanceTokens = {
-  TOKEN: tEthereumAddress,
-  STAKED_TOKEN: tEthereumAddress,
+  TOKEN: tEthereumAddress;
+  STAKED_TOKEN: tEthereumAddress;
 };
 
 export type GovTokenDelegatees = {
-  PROPOSITION_DELEGATEE: tEthereumAddress,
-  VOTING_DELEGATEE: tEthereumAddress,
+  PROPOSITION_DELEGATEE: tEthereumAddress;
+  VOTING_DELEGATEE: tEthereumAddress;
 };
 
 export type UserGovernanceDelegatees = {
   // undefined if user has 0 balance of underlying token
-  TOKEN?: GovTokenDelegatees,
+  TOKEN?: GovTokenDelegatees;
   // undefined if user has 0 balance of underlying token
-  STAKED_TOKEN?: GovTokenDelegatees,
+  STAKED_TOKEN?: GovTokenDelegatees;
 };
 
 /** InterestRate options */
@@ -56,11 +57,13 @@ export enum Network {
   main = 'main',
   ropsten = 'ropsten',
   hardhat = 'hardhat',
+  goerli = 'goerli',
 }
 
 export enum ChainId {
   main = 1,
   ropsten = 3,
+  goerli = 5,
   hardhat = 31337,
 }
 
@@ -171,9 +174,9 @@ export type MulticallData = {
 export type Configuration = {
   network: Network;
   provider:
-  | providers.JsonRpcProvider
-  | providers.BaseProvider
-  | providers.Web3Provider;
+    | providers.JsonRpcProvider
+    | providers.BaseProvider
+    | providers.Web3Provider;
   ipfsTimeoutMs?: number;
 };
 

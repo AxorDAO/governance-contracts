@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 
 import { ERC20__factory as IERC20Detailed__factory } from '../../../types';
-import { ERC20 as IERC20Detailed } from '../../../types/Erc20';
+import { ERC20 as IERC20Detailed } from '../../../types/ERC20';
 import {
   Configuration,
   eEthereumTxType,
@@ -49,16 +49,11 @@ export default class ERC20Service extends BaseService<IERC20Detailed> {
     spender: tEthereumAddress,
   ): Promise<tStringDecimalUnits> => {
     const erc20Contract: IERC20Detailed = this.getContractInstance(token);
-    const [
-      tokenApprovalAmount,
-      tokenDecimals,
-    ]: [
-      BigNumber,
-      number,
-    ] = await Promise.all([
-      erc20Contract.allowance(userAddress, spender),
-      this.decimalsOf(token),
-    ]);
+    const [tokenApprovalAmount, tokenDecimals]: [BigNumber, number] =
+      await Promise.all([
+        erc20Contract.allowance(userAddress, spender),
+        this.decimalsOf(token),
+      ]);
     return formatUnits(tokenApprovalAmount, tokenDecimals);
   };
 
@@ -80,11 +75,8 @@ export default class ERC20Service extends BaseService<IERC20Detailed> {
       decimals: decimalsGetter,
     }: IERC20Detailed = this.getContractInstance(token);
 
-    const [name, symbol, decimals]: [
-      string,
-      string,
-      number,
-    ] = await Promise.all([nameGetter(), symbolGetter(), decimalsGetter()]);
+    const [name, symbol, decimals]: [string, string, number] =
+      await Promise.all([nameGetter(), symbolGetter(), decimalsGetter()]);
 
     return {
       name,
@@ -99,16 +91,11 @@ export default class ERC20Service extends BaseService<IERC20Detailed> {
     user: tEthereumAddress,
   ): Promise<tStringDecimalUnits> => {
     const erc20Contract: IERC20Detailed = this.getContractInstance(token);
-    const [
-      tokenBalance,
-      tokenDecimals,
-    ]: [
-      BigNumber,
-      number,
-    ] = await Promise.all([
-      erc20Contract.balanceOf(user),
-      this.decimalsOf(token),
-    ]);
+    const [tokenBalance, tokenDecimals]: [BigNumber, number] =
+      await Promise.all([
+        erc20Contract.balanceOf(user),
+        this.decimalsOf(token),
+      ]);
     return formatUnits(tokenBalance, tokenDecimals.toString());
   };
 
@@ -116,16 +103,8 @@ export default class ERC20Service extends BaseService<IERC20Detailed> {
     token: tEthereumAddress,
   ): Promise<tStringDecimalUnits> => {
     const erc20Contract: IERC20Detailed = this.getContractInstance(token);
-    const [
-      tokenTotalSupply,
-      tokenDecimals,
-    ]: [
-      BigNumber,
-      number,
-    ] = await Promise.all([
-      erc20Contract.totalSupply(),
-      this.decimalsOf(token),
-    ]);
+    const [tokenTotalSupply, tokenDecimals]: [BigNumber, number] =
+      await Promise.all([erc20Contract.totalSupply(), this.decimalsOf(token)]);
     return formatUnits(tokenTotalSupply, tokenDecimals.toString());
   };
 }

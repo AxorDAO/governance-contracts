@@ -10,7 +10,7 @@ export const isPositiveOrMinusOneMetadataKey = Symbol('isPositiveOrMinusOne');
 export const is0OrPositiveMetadataKey = Symbol('is0OrPositiveMetadataKey');
 export const optionalMetadataKey = Symbol('Optional');
 
-export type paramsType = {
+export type ParamsType = {
   index: number;
   field: string | undefined;
 };
@@ -23,7 +23,8 @@ export function IsEthAddress(field?: string) {
     propertyKey: string | symbol,
     parameterIndex: number,
   ): void {
-    const existingPossibleAddresses: paramsType[] = Reflect.getOwnMetadata(isEthAddressMetadataKey, target, propertyKey) ||
+    const existingPossibleAddresses: ParamsType[] =
+      Reflect.getOwnMetadata(isEthAddressMetadataKey, target, propertyKey) ||
       [];
 
     existingPossibleAddresses.push({
@@ -47,11 +48,12 @@ export function IsEthAddressOrENS(field?: string) {
     propertyKey: string | symbol,
     parameterIndex: number,
   ): void {
-    const existingPossibleAddresses: paramsType[] = Reflect.getOwnMetadata(
-      isEthAddressOrENSMetadataKey,
-      target,
-      propertyKey,
-    ) || [];
+    const existingPossibleAddresses: ParamsType[] =
+      Reflect.getOwnMetadata(
+        isEthAddressOrENSMetadataKey,
+        target,
+        propertyKey,
+      ) || [];
 
     existingPossibleAddresses.push({
       index: parameterIndex,
@@ -74,7 +76,8 @@ export function IsPositiveAmount(field?: string) {
     propertyKey: string | symbol,
     parameterIndex: number,
   ): void {
-    const params: paramsType[] = Reflect.getOwnMetadata(isPositiveMetadataKey, target, propertyKey) || [];
+    const params: ParamsType[] =
+      Reflect.getOwnMetadata(isPositiveMetadataKey, target, propertyKey) || [];
 
     params.push({ index: parameterIndex, field });
 
@@ -89,7 +92,8 @@ export function Is0OrPositiveAmount(field?: string) {
     propertyKey: string | symbol,
     parameterIndex: number,
   ): void {
-    const params: paramsType[] = Reflect.getOwnMetadata(is0OrPositiveMetadataKey, target, propertyKey) ||
+    const params: ParamsType[] =
+      Reflect.getOwnMetadata(is0OrPositiveMetadataKey, target, propertyKey) ||
       [];
 
     params.push({ index: parameterIndex, field });
@@ -110,11 +114,12 @@ export function IsPositiveOrMinusOneAmount(field?: string) {
     propertyKey: string | symbol,
     parameterIndex: number,
   ): void {
-    const params: paramsType[] = Reflect.getOwnMetadata(
-      isPositiveOrMinusOneMetadataKey,
-      target,
-      propertyKey,
-    ) || [];
+    const params: ParamsType[] =
+      Reflect.getOwnMetadata(
+        isPositiveOrMinusOneMetadataKey,
+        target,
+        propertyKey,
+      ) || [];
 
     params.push({ index: parameterIndex, field });
 
@@ -133,7 +138,8 @@ export function Optional(
   propertyKey: string | symbol,
   parameterIndex: number,
 ): void {
-  const existingOptionalParameters = Reflect.getOwnMetadata(optionalMetadataKey, target, propertyKey) || [];
+  const existingOptionalParameters =
+    Reflect.getOwnMetadata(optionalMetadataKey, target, propertyKey) || [];
   existingOptionalParameters.push(parameterIndex);
   Reflect.defineMetadata(
     optionalMetadataKey,

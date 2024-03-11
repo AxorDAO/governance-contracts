@@ -33,9 +33,7 @@ interface IAxorToken {
  * - getPropositionPowerAt: fetching a user Proposition Power at a specified block
  * - getVotingPowerAt: fetching a user Voting Power at a specified block
  */
-contract GovernanceStrategy is
-  IGovernanceStrategy
-{
+contract GovernanceStrategy is IGovernanceStrategy {
   // ============ Constants ============
 
   /// @notice The AXOR governance token.

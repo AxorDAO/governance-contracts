@@ -1,6 +1,10 @@
 import { BigNumber } from 'ethers';
 
-import { axorTokenAddresses, AXOR_TOKEN_DECIMALS, stakingAddresses } from '../config';
+import {
+  axorTokenAddresses,
+  AXOR_TOKEN_DECIMALS,
+  stakingAddresses,
+} from '../config';
 import ERC20Service from '../services/ERC20';
 import {
   Network,
@@ -16,12 +20,16 @@ export async function filterZeroTokenBalances(
   erc20Service: ERC20Service,
   tokens: tEthereumAddress[],
 ): Promise<tEthereumAddress[]> {
-  const balances:
-  { tokenBalance: BigNumber, token: tEthereumAddress }[] = await Promise.all(
-    tokens.map(async (token: tEthereumAddress) => {
-      const tokenBalance: BigNumber = parseNumberToEthersBigNumber(await erc20Service.balanceOf(token, user), AXOR_TOKEN_DECIMALS);
-      return { tokenBalance, token };
-    }));
+  const balances: { tokenBalance: BigNumber; token: tEthereumAddress }[] =
+    await Promise.all(
+      tokens.map(async (token: tEthereumAddress) => {
+        const tokenBalance: BigNumber = parseNumberToEthersBigNumber(
+          await erc20Service.balanceOf(token, user),
+          AXOR_TOKEN_DECIMALS,
+        );
+        return { tokenBalance, token };
+      }),
+    );
 
   return balances
     .filter((balance) => !balance.tokenBalance.isZero())

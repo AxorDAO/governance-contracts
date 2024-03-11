@@ -40,7 +40,7 @@ abstract contract SM1ERC20 is
     override
     returns (string memory)
   {
-    return 'Staked AXOR';
+    return 'Stake AXR';
   }
 
   function symbol()
@@ -49,7 +49,7 @@ abstract contract SM1ERC20 is
     override
     returns (string memory)
   {
-    return 'stkAXOR';
+    return 'sAXR';
   }
 
   function decimals()

@@ -12,7 +12,7 @@ import {
   isPositiveMetadataKey,
   isPositiveOrMinusOneMetadataKey,
   optionalMetadataKey,
-  paramsType,
+  ParamsType,
 } from './paramValidators';
 
 export function optionalValidator(
@@ -43,7 +43,7 @@ export function isEthAddressValidator(
   methodArguments: any,
   isParamOptional?: boolean[],
 ): void {
-  const addressParameters: paramsType[] = Reflect.getOwnMetadata(
+  const addressParameters: ParamsType[] = Reflect.getOwnMetadata(
     isEthAddressMetadataKey,
     target,
     propertyName,
@@ -63,7 +63,8 @@ export function isEthAddressValidator(
           );
         }
       } else {
-        const isOptional = isParamOptional && isParamOptional[storedParams.index];
+        const isOptional =
+          isParamOptional && isParamOptional[storedParams.index];
         if (
           methodArguments[storedParams.index] &&
           !isOptional &&
@@ -86,7 +87,7 @@ export function isEthAddressOrEnsValidator(
   methodArguments: any,
   isParamOptional?: boolean[],
 ): void {
-  const addressParameters: paramsType[] = Reflect.getOwnMetadata(
+  const addressParameters: ParamsType[] = Reflect.getOwnMetadata(
     isEthAddressOrENSMetadataKey,
     target,
     propertyName,
@@ -108,7 +109,8 @@ export function isEthAddressOrEnsValidator(
           }
         }
       } else {
-        const isOptional = isParamOptional && isParamOptional[storedParams.index];
+        const isOptional =
+          isParamOptional && isParamOptional[storedParams.index];
         if (
           methodArguments[storedParams.index] &&
           !isOptional &&
@@ -133,7 +135,7 @@ export function amountGtThan0Validator(
   methodArguments: any,
   isParamOptional?: boolean[],
 ): void {
-  const amountParameters: paramsType[] = Reflect.getOwnMetadata(
+  const amountParameters: ParamsType[] = Reflect.getOwnMetadata(
     isPositiveMetadataKey,
     target,
     propertyName,
@@ -153,7 +155,8 @@ export function amountGtThan0Validator(
           );
         }
       } else {
-        const isOptional = isParamOptional && isParamOptional[storedParams.index];
+        const isOptional =
+          isParamOptional && isParamOptional[storedParams.index];
         if (!isOptional && !(Number(methodArguments[storedParams.index]) > 0)) {
           throw new Error(
             `Amount: ${
@@ -172,7 +175,7 @@ export function amount0OrPositiveValidator(
   methodArguments: any,
   isParamOptional?: boolean[],
 ): void {
-  const amountParameters: paramsType[] = Reflect.getOwnMetadata(
+  const amountParameters: ParamsType[] = Reflect.getOwnMetadata(
     is0OrPositiveMetadataKey,
     target,
     propertyName,
@@ -192,7 +195,8 @@ export function amount0OrPositiveValidator(
           );
         }
       } else {
-        const isOptional = isParamOptional && isParamOptional[storedParams.index];
+        const isOptional =
+          isParamOptional && isParamOptional[storedParams.index];
         if (
           !isOptional &&
           !(Number(methodArguments[storedParams.index]) >= 0)
@@ -214,7 +218,7 @@ export function amountGtThan0OrMinus1(
   methodArguments: any,
   isParamOptional?: boolean[],
 ): void {
-  const amountMinusOneParameters: paramsType[] = Reflect.getOwnMetadata(
+  const amountMinusOneParameters: ParamsType[] = Reflect.getOwnMetadata(
     isPositiveOrMinusOneMetadataKey,
     target,
     propertyName,
@@ -237,7 +241,8 @@ export function amountGtThan0OrMinus1(
           );
         }
       } else {
-        const isOptional = isParamOptional && isParamOptional[storedParams.index];
+        const isOptional =
+          isParamOptional && isParamOptional[storedParams.index];
         if (
           !isOptional &&
           !(

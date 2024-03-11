@@ -6,11 +6,8 @@ import {
   GovernanceStrategy__factory,
   ProxyAdmin__factory,
   SafetyModuleV1__factory,
-  SafetyModuleV2__factory,
-  SM2Recovery__factory,
   Treasury__factory,
   TreasuryVester__factory,
-  GovernanceStrategyV2__factory,
 } from '../../../types';
 import { IERC20__factory } from '../../../types/factories/IERC20__factory';
 import { LiquidityStakingV1__factory } from '../../../types/factories/LiquidityStakingV1__factory';
@@ -53,14 +50,10 @@ export async function getMainnetDeployedContracts(): Promise<MainnetDeployedCont
     rewardsTreasuryVester: new TreasuryVester__factory(deployer).attach(deployedAddresses.rewardsTreasuryVester),
     communityTreasuryVester: new TreasuryVester__factory(deployer).attach(deployedAddresses.communityTreasuryVester),
     claimsProxy: new ClaimsProxy__factory(deployer).attach(deployedAddresses.claimsProxy),
-    safetyModuleNewImpl: new SafetyModuleV2__factory(deployer).attach(deployedAddresses.safetyModuleNewImpl),
-    safetyModuleRecovery: new SM2Recovery__factory(deployer).attach(deployedAddresses.safetyModuleRecovery),
-    safetyModuleRecoveryProxyAdmin: new ProxyAdmin__factory(deployer).attach(deployedAddresses.safetyModuleRecoveryProxyAdmin),
     liquidityStaking: new LiquidityStakingV1__factory(deployer).attach(deployedAddresses.liquidityStaking),
     liquidityStakingProxyAdmin: new ProxyAdmin__factory(deployer).attach(deployedAddresses.liquidityStakingProxyAdmin),
     merkleDistributor: new MerkleDistributorV1__factory(deployer).attach(deployedAddresses.merkleDistributor),
     merkleDistributorProxyAdmin: new ProxyAdmin__factory(deployer).attach(deployedAddresses.merkleDistributorProxyAdmin),
     axorCollateralToken: IERC20__factory.connect(deployedAddresses.axorCollateralToken, deployer),
-    governanceStrategyV2: new GovernanceStrategyV2__factory(deployer).attach(deployedAddresses.strategyV2),
   };
 }

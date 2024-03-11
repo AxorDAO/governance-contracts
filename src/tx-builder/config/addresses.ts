@@ -11,13 +11,13 @@ import {
 } from '../types';
 
 export const axorGovernanceAddresses: GovernanceConfigType = {
-  [Network.ropsten]: {
-    AXOR_GOVERNANCE: '0x5Fd2BfBba46f1EA4b5f7D468ddcd3Fa9Aca7Ce7F',
-    AXOR_GOVERNANCE_EXECUTOR_SHORT: '0xF26F55DeFf6da87E85B4109996ACF634Cb45605D',
-    AXOR_GOVERNANCE_EXECUTOR_LONG: '0xD0E02474dD84A3439cb6B2aC19fd7C16a6383F14',
-    AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER: '0x922bBC70Ddf920B5882Eb873485D924474548dE5',
-    AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE: '0x0239a15DDe3cF36035327876aC494eb473f68371',
-    AXOR_GOVERNANCE_STRATEGY: '0xF72E4Eb9c66cFb898DAe5c1f0c4de5F6EB7A2185',
+  [Network.goerli]: {
+    AXOR_GOVERNANCE: '0x81f42A02aE671f5d6e12523D5d0789B683C17F54',
+    AXOR_GOVERNANCE_STRATEGY: '0xee670576827A6ac344fE4DE7d610ACaeb18568aC',
+    AXOR_GOVERNANCE_EXECUTOR_SHORT: '0x263bEf22A6247689b789091999858e901d0A5f75',
+    AXOR_GOVERNANCE_EXECUTOR_LONG: '0xB352e201FD6223a2525Fbca9D6D828AF65c686EA',
+    AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER: '0x4556C04278F95805F84cdF7e9763a24Af4e01f47',
+    AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE: '0x1ce9344Cfe2c493be32cb518A2a7db908E0c0B3D',
   },
   [Network.main]: {
     AXOR_GOVERNANCE: '0x7E9B1672616FF6D6629Ef2879419aaE79A9018D2',
@@ -30,8 +30,8 @@ export const axorGovernanceAddresses: GovernanceConfigType = {
 };
 
 export const axorTokenAddresses: TokenConfigType = {
-  [Network.ropsten]: {
-    TOKEN_ADDRESS: '0x78b8ED55608F3db3f4e5A0A6f495f75cB8e0172F',
+  [Network.goerli]: {
+    TOKEN_ADDRESS: '0x0d5Ec9FE02e599E35c92fcdEacbA20331541FFA3',
   },
   [Network.main]: {
     TOKEN_ADDRESS: '0x92D6C1e31e14520e676a687F0a93788B716BEff5',
@@ -39,8 +39,8 @@ export const axorTokenAddresses: TokenConfigType = {
 };
 
 export const axorTreasuryAddresses: TreasuryConfigType = {
-  [Network.ropsten]: {
-    REWARDS_TREASURY_ADDRESS: '0x764ad5d7A9ed66867136D3a81cE44db072735cF2',
+  [Network.goerli]: {
+    REWARDS_TREASURY_ADDRESS: '0x8B4539FCB24Cdab59B5FABe3257402547AAF4dc3',
     REWARDS_TREASURY_VESTER_ADDRESS: '0xd7e61Da29acb6485856557FfC6182Cb8E409F057',
     COMMUNITY_TREASURY_ADDRESS: '0x386493547E2Ae9564173f0a686689c13d6CA98A7',
     COMMUNITY_TREASURY_VESTER_ADDRESS: '0x11fD40D51C6B00f3D62344fdA4CeEEBFD2d78ac4',
@@ -54,8 +54,8 @@ export const axorTreasuryAddresses: TreasuryConfigType = {
 };
 
 export const stakingAddresses: StakingConfigType = {
-  [Network.ropsten]: {
-    SAFETY_MODULE_ADDRESS: '0xb9B802E34e646D383b85D9B9ad1B2baDf807603E',
+  [Network.goerli]: {
+    SAFETY_MODULE_ADDRESS: '0xd1357066b9c4FF4a513Ae2E5f4dD99F7b7c9906f',
   },
   [Network.main]: {
     SAFETY_MODULE_ADDRESS: '0x65f7BA4Ec257AF7c55fd5854E5f6356bBd0fb8EC',
@@ -63,8 +63,8 @@ export const stakingAddresses: StakingConfigType = {
 };
 
 export const liquidityModuleAddresses: LiquidityModuleConfigType = {
-  [Network.ropsten]: {
-    LIQUIDITY_MODULE_ADDRESS: '0xf6c7cbb3381c819dD403a1b4B7669fE468cf738f',
+  [Network.goerli]: {
+    LIQUIDITY_MODULE_ADDRESS: '0xb5845FdbCa6A3CF7141B474E66E2Fe9a9EaAa2e6',
   },
   [Network.main]: {
     LIQUIDITY_MODULE_ADDRESS: '0x5Aa653A076c1dbB47cec8C1B4d152444CAD91941',
@@ -72,8 +72,8 @@ export const liquidityModuleAddresses: LiquidityModuleConfigType = {
 };
 
 export const merkleDistributorAddresses: MerkleDistributorConfigType = {
-  [Network.ropsten]: {
-    MERKLE_DISTRIBUTOR_ADDRESS: '0x0968e47cBa485006d9CDC6a8eAa94eba779Ca309',
+  [Network.goerli]: {
+    MERKLE_DISTRIBUTOR_ADDRESS: '0xA71c31A258e494C672E78b82658884FB7974371f',
   },
   [Network.main]: {
     MERKLE_DISTRIBUTOR_ADDRESS: '0x01d3348601968aB85b4bb028979006eac235a588',
@@ -81,7 +81,7 @@ export const merkleDistributorAddresses: MerkleDistributorConfigType = {
 };
 
 export const claimsProxyAddresses: ClaimsProxyConfigType = {
-  [Network.ropsten]: {
+  [Network.goerli]: {
     CLAIMS_PROXY_ADDRESS: '0x1aba54deC087c432c8353D6dbe29982e9F677843',
   },
   [Network.main]: {
@@ -90,7 +90,7 @@ export const claimsProxyAddresses: ClaimsProxyConfigType = {
 };
 
 export const multicallAddresses: MulticallConfigType = {
-  [Network.ropsten]: {
+  [Network.goerli]: {
     MULTICALL_ADDRESS: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   },
   [Network.main]: {

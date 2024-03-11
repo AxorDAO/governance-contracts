@@ -59,7 +59,10 @@ import {
 import { filterZeroTokenBalances } from '../utils/helpers';
 import { getProposalMetadata } from '../utils/ipfs';
 import { parseNumberToEthersBigNumber } from '../utils/parsings';
-import { executeGetSortedProposalVotesQuery, SubgraphProposalVote } from '../utils/subgraph';
+import {
+  executeGetSortedProposalVotesQuery,
+  getSortedProposalVotes,
+} from '../utils/subgraph';
 import { GovValidator } from '../validators/methodValidators';
 import {
   Is0OrPositiveAmount,
@@ -102,9 +105,13 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     const { network } = this.config;
     const isHardhatNetwork: boolean = network === Network.hardhat;
     if (isHardhatNetwork && !hardhatGovernanceAddresses) {
-      throw new Error('Must specify governance addresses when on hardhat network');
+      throw new Error(
+        'Must specify governance addresses when on hardhat network',
+      );
     }
-    const governanceAddresses: tDistinctGovernanceAddresses = isHardhatNetwork ? hardhatGovernanceAddresses! : axorGovernanceAddresses[network];
+    const governanceAddresses: tDistinctGovernanceAddresses = isHardhatNetwork
+      ? hardhatGovernanceAddresses!
+      : axorGovernanceAddresses[network];
     const {
       AXOR_GOVERNANCE,
       AXOR_GOVERNANCE_EXECUTOR_SHORT,
@@ -118,24 +125,26 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     this.axorGovernanceStrategyAddress = AXOR_GOVERNANCE_STRATEGY;
     this.executors[ExecutorType.Short] = AXOR_GOVERNANCE_EXECUTOR_SHORT;
     this.executors[ExecutorType.Long] = AXOR_GOVERNANCE_EXECUTOR_LONG;
-    this.executors[ExecutorType.Merkle] = AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER;
-    this.executors[ExecutorType.Starkware] = AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE;
+    this.executors[ExecutorType.Merkle] =
+      AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER;
+    this.executors[ExecutorType.Starkware] =
+      AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE;
     this.governanceTokens = governanceTokens;
   }
 
   @GovValidator
   public async create(
     @IsEthAddress('user')
-      {
-        user,
-        targets,
-        values,
-        signatures,
-        calldatas,
-        withDelegateCalls,
-        ipfsHash,
-        executor,
-      }: GovCreateType,
+    {
+      user,
+      targets,
+      values,
+      signatures,
+      calldatas,
+      withDelegateCalls,
+      ipfsHash,
+      executor,
+    }: GovCreateType,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
 
@@ -169,7 +178,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
   public async cancel(
     @IsEthAddress('user')
     @Is0OrPositiveAmount('proposalId')
-      { user, proposalId }: GovCancelType,
+    { user, proposalId }: GovCancelType,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
     const govContract: AxorGovernor = this.getContractInstance(
@@ -193,7 +202,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
   public async queue(
     @IsEthAddress('user')
     @Is0OrPositiveAmount('proposalId')
-      { user, proposalId }: GovQueueType,
+    { user, proposalId }: GovQueueType,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
     const govContract: AxorGovernor = this.getContractInstance(
@@ -217,7 +226,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
   public async execute(
     @IsEthAddress('user')
     @Is0OrPositiveAmount('proposalId')
-      { user, proposalId }: GovExecuteType,
+    { user, proposalId }: GovExecuteType,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
     const govContract: AxorGovernor = this.getContractInstance(
@@ -241,7 +250,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
   public async submitVote(
     @IsEthAddress('user')
     @Is0OrPositiveAmount('proposalId')
-      { user, proposalId, support }: GovSubmitVoteType,
+    { user, proposalId, support }: GovSubmitVoteType,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
     const govContract: AxorGovernor = this.getContractInstance(
@@ -265,7 +274,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
   @GovValidator
   public async signVoting(
     @Is0OrPositiveAmount('proposalId')
-      { support, proposalId }: GovSignVotingType,
+    { support, proposalId }: GovSignVotingType,
   ): Promise<string> {
     const typeData = {
       types: {
@@ -298,7 +307,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
   public async submitVoteBySignature(
     @IsEthAddress('user')
     @Is0OrPositiveAmount('proposalId')
-      { user, proposalId, support, signature }: GovSubmitVoteSignType,
+    { user, proposalId, support, signature }: GovSubmitVoteSignType,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
     const govContract: AxorGovernor = this.getContractInstance(
@@ -334,10 +343,8 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     strategy,
   }: GovGetVotingAtBlockType): Promise<string> {
     const { provider }: Configuration = this.config;
-    const proposalStrategy: GovernanceStrategy = GovernanceStrategy__factory.connect(
-      strategy,
-      provider,
-    );
+    const proposalStrategy: GovernanceStrategy =
+      GovernanceStrategy__factory.connect(strategy, provider);
 
     const power = await proposalStrategy.getPropositionPowerAt(
       user,
@@ -353,10 +360,8 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     strategy,
   }: GovGetVotingAtBlockType): Promise<string> {
     const { provider }: Configuration = this.config;
-    const proposalStrategy: GovernanceStrategy = GovernanceStrategy__factory.connect(
-      strategy,
-      provider,
-    );
+    const proposalStrategy: GovernanceStrategy =
+      GovernanceStrategy__factory.connect(strategy, provider);
 
     const power = await proposalStrategy.getVotingPowerAt(
       user,
@@ -371,10 +376,8 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     strategy,
   }: GovGetVotingSupplyType): Promise<string> {
     const { provider }: Configuration = this.config;
-    const proposalStrategy: GovernanceStrategy = GovernanceStrategy__factory.connect(
-      strategy,
-      provider,
-    );
+    const proposalStrategy: GovernanceStrategy =
+      GovernanceStrategy__factory.connect(strategy, provider);
 
     const total = await proposalStrategy.getTotalPropositionSupplyAt(
       block.toString(),
@@ -388,10 +391,8 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     strategy,
   }: GovGetVotingSupplyType): Promise<string> {
     const { provider }: Configuration = this.config;
-    const proposalStrategy: GovernanceStrategy = GovernanceStrategy__factory.connect(
-      strategy,
-      provider,
-    );
+    const proposalStrategy: GovernanceStrategy =
+      GovernanceStrategy__factory.connect(strategy, provider);
 
     const total = await proposalStrategy.getTotalVotingSupplyAt(
       block.toString(),
@@ -399,12 +400,18 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     return formatEther(total);
   }
 
-  public async getCurrentPropositionPower(user: tEthereumAddress): Promise<string> {
+  public async getCurrentPropositionPower(
+    user: tEthereumAddress,
+  ): Promise<string> {
     const { provider }: Configuration = this.config;
     const block = await provider.getBlock('latest');
     const latestBlock: number = block.number;
 
-    return this.getPropositionPowerAt({ user, block: latestBlock, strategy: this.axorGovernanceStrategyAddress });
+    return this.getPropositionPowerAt({
+      user,
+      block: latestBlock,
+      strategy: this.axorGovernanceStrategyAddress,
+    });
   }
 
   public async getCurrentVotingPower(user: tEthereumAddress): Promise<string> {
@@ -412,59 +419,73 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     const block = await provider.getBlock('latest');
     const latestBlock: number = block.number;
 
-    return this.getVotingPowerAt({ user, block: latestBlock, strategy: this.axorGovernanceStrategyAddress });
+    return this.getVotingPowerAt({
+      user,
+      block: latestBlock,
+      strategy: this.axorGovernanceStrategyAddress,
+    });
   }
 
   public async delegatePropositionAndVotingPower(
     user: tEthereumAddress,
     delegatee: tEthereumAddress,
   ): Promise<EthereumTransactionTypeExtended[]> {
-    const nonzeroTokenBalances: tEthereumAddress[] = await filterZeroTokenBalances(
-      user,
-      this.erc20Service,
-      [this.governanceTokens.TOKEN, this.governanceTokens.STAKED_TOKEN],
-    );
+    const nonzeroTokenBalances: tEthereumAddress[] =
+      await filterZeroTokenBalances(user, this.erc20Service, [
+        this.governanceTokens.TOKEN,
+        this.governanceTokens.STAKED_TOKEN,
+      ]);
 
     const txs: EthereumTransactionTypeExtended[] = flatten(
-      await Promise.all(nonzeroTokenBalances.map(async (governanceToken: tEthereumAddress) =>
-        this.governanceTokenDelegationService.delegate({
-          user,
-          delegatee,
-          governanceToken,
-        }),
-      )),
+      await Promise.all(
+        nonzeroTokenBalances.map(async (governanceToken: tEthereumAddress) =>
+          this.governanceTokenDelegationService.delegate({
+            user,
+            delegatee,
+            governanceToken,
+          }),
+        ),
+      ),
     );
 
     return txs;
   }
 
-  public async getUserDelegatees(user: tEthereumAddress): Promise<UserGovernanceDelegatees> {
-    const [
-      parsedTokenBalance,
-      parsedStakedTokenBalance,
-    ]: [
+  public async getUserDelegatees(
+    user: tEthereumAddress,
+  ): Promise<UserGovernanceDelegatees> {
+    const [parsedTokenBalance, parsedStakedTokenBalance]: [
       tStringCurrencyUnits,
       tStringCurrencyUnits,
     ] = await Promise.all([
       this.erc20Service.balanceOf(this.governanceTokens.TOKEN, user),
-      this.erc20Service.balanceOf(this.governanceTokens.STAKED_TOKEN, user)]);
+      this.erc20Service.balanceOf(this.governanceTokens.STAKED_TOKEN, user),
+    ]);
 
-    const tokenBalance: BigNumber = parseNumberToEthersBigNumber(parsedTokenBalance, AXOR_TOKEN_DECIMALS);
-    const stakedTokenBalance: BigNumber = parseNumberToEthersBigNumber(parsedStakedTokenBalance, AXOR_TOKEN_DECIMALS);
+    const tokenBalance: BigNumber = parseNumberToEthersBigNumber(
+      parsedTokenBalance,
+      AXOR_TOKEN_DECIMALS,
+    );
+    const stakedTokenBalance: BigNumber = parseNumberToEthersBigNumber(
+      parsedStakedTokenBalance,
+      AXOR_TOKEN_DECIMALS,
+    );
 
     const userTokenDelegatees: UserGovernanceDelegatees = {};
 
     if (!tokenBalance.isZero()) {
-      userTokenDelegatees.TOKEN = await this.governanceTokenDelegationService.getDelegatees(
-        user,
-        this.governanceTokens.TOKEN,
-      );
+      userTokenDelegatees.TOKEN =
+        await this.governanceTokenDelegationService.getDelegatees(
+          user,
+          this.governanceTokens.TOKEN,
+        );
     }
     if (!stakedTokenBalance.isZero()) {
-      userTokenDelegatees.STAKED_TOKEN = await this.governanceTokenDelegationService.getDelegatees(
-        user,
-        this.governanceTokens.STAKED_TOKEN,
-      );
+      userTokenDelegatees.STAKED_TOKEN =
+        await this.governanceTokenDelegationService.getDelegatees(
+          user,
+          this.governanceTokens.STAKED_TOKEN,
+        );
     }
 
     return userTokenDelegatees;
@@ -481,7 +502,11 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     user: tEthereumAddress,
     delegatee: tEthereumAddress,
   ): Promise<EthereumTransactionTypeExtended[]> {
-    return this.delegatePower(user, delegatee, DelegationType.PROPOSITION_POWER);
+    return this.delegatePower(
+      user,
+      delegatee,
+      DelegationType.PROPOSITION_POWER,
+    );
   }
 
   private async delegatePower(
@@ -489,21 +514,23 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     delegatee: tEthereumAddress,
     delegationType: DelegationType,
   ): Promise<EthereumTransactionTypeExtended[]> {
-    const nonzeroTokenBalances: tEthereumAddress[] = await filterZeroTokenBalances(
-      user,
-      this.erc20Service,
-      [this.governanceTokens.TOKEN, this.governanceTokens.STAKED_TOKEN],
-    );
+    const nonzeroTokenBalances: tEthereumAddress[] =
+      await filterZeroTokenBalances(user, this.erc20Service, [
+        this.governanceTokens.TOKEN,
+        this.governanceTokens.STAKED_TOKEN,
+      ]);
 
     const txs: EthereumTransactionTypeExtended[] = flatten(
-      await Promise.all(nonzeroTokenBalances.map(async (governanceToken: tEthereumAddress) =>
-        this.governanceTokenDelegationService.delegateByType({
-          user,
-          delegatee,
-          governanceToken,
-          delegationType,
-        }),
-      )),
+      await Promise.all(
+        nonzeroTokenBalances.map(async (governanceToken: tEthereumAddress) =>
+          this.governanceTokenDelegationService.delegateByType({
+            user,
+            delegatee,
+            governanceToken,
+            delegationType,
+          }),
+        ),
+      ),
     );
 
     return txs;
@@ -525,112 +552,145 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
       this.axorGovernanceAddress,
     );
 
-    const [
-      numProposals,
-      votingDelay,
-    ]: [
-      BigNumber,
-      BigNumber,
-    ] = await Promise.all([
-      governance.getProposalsCount(),
-      governance.getVotingDelay(),
-    ]);
+    const [numProposals, votingDelay]: [BigNumber, BigNumber] =
+      await Promise.all([
+        governance.getProposalsCount(),
+        governance.getVotingDelay(),
+      ]);
 
-    let numProposalsToFetch: number = numProposals.gt(limit) ? limit : numProposals.toNumber();
+    let numProposalsToFetch: number = numProposals.gt(limit)
+      ? limit
+      : numProposals.toNumber();
 
     const getProposalDataAndStateRequests: Promise<ProposalDataAndState>[] = [];
 
     // proposal IDs are 0-indexed
     let currentProposalId = numProposals.sub(1).toNumber();
     while (numProposalsToFetch > 0) {
-      getProposalDataAndStateRequests.push(getProposalDataAndStateById(governance, currentProposalId));
+      getProposalDataAndStateRequests.push(
+        getProposalDataAndStateById(governance, currentProposalId),
+      );
 
       currentProposalId--;
       numProposalsToFetch--;
     }
 
-    const proposalDataAndStates: ProposalDataAndState[] = await Promise.all(getProposalDataAndStateRequests);
+    const proposalDataAndStates: ProposalDataAndState[] = await Promise.all(
+      getProposalDataAndStateRequests,
+    );
 
     const { provider }: Configuration = this.config;
-    return Promise.all(proposalDataAndStates.map(
-      async (pdas: ProposalDataAndState): Promise<Proposal> => {
-        const strategy: GovernanceStrategy = GovernanceStrategy__factory.connect(
-          pdas.proposal.strategy,
-          provider,
-        );
+    return Promise.all(
+      proposalDataAndStates.map(
+        async (pdas: ProposalDataAndState): Promise<Proposal> => {
+          const strategy: GovernanceStrategy =
+            GovernanceStrategy__factory.connect(
+              pdas.proposal.strategy,
+              provider,
+            );
 
-        const executor: Executor = Executor__factory.connect(
-          pdas.proposal.executor,
-          provider,
-        );
+          const executor: Executor = Executor__factory.connect(
+            pdas.proposal.executor,
+            provider,
+          );
 
-        const [
-          votingSupply,
-          executorVotingData,
-          ipfsProposalMetadata,
-        ]: [
-          BigNumber,
-          ExecutorVotingData,
-          IPFSProposalData,
-        ] = await Promise.all([
-          getStrategyVotingSupplyForProposal(strategy, pdas.proposal.startBlock.toNumber()),
-          getExecutorVotingData(executor),
-          getProposalMetadata(pdas.proposal.ipfsHash, this.config.ipfsTimeoutMs),
-        ]);
+          const [votingSupply, executorVotingData, ipfsProposalMetadata]: [
+            BigNumber,
+            ExecutorVotingData,
+            IPFSProposalData,
+          ] = await Promise.all([
+            getStrategyVotingSupplyForProposal(
+              strategy,
+              pdas.proposal.startBlock.toNumber(),
+            ),
+            getExecutorVotingData(executor),
+            getProposalMetadata(
+              pdas.proposal.ipfsHash,
+              this.config.ipfsTimeoutMs,
+            ),
+          ]);
 
-        const numVotesMinQuorum: BigNumber = votingSupply
-          .mul(executorVotingData.minimumQuorum)
-          .div(executorVotingData.executorVotingPrecision);
-        const numVotesVoteDifferential: BigNumber = votingSupply
-          .mul(executorVotingData.voteDifferential)
-          .div(executorVotingData.executorVotingPrecision);
+          const numVotesMinQuorum: BigNumber = votingSupply
+            .mul(executorVotingData.minimumQuorum)
+            .div(executorVotingData.executorVotingPrecision);
+          const numVotesVoteDifferential: BigNumber = votingSupply
+            .mul(executorVotingData.voteDifferential)
+            .div(executorVotingData.executorVotingPrecision);
 
-        const onchainProposalId = pdas.proposal.id.toNumber();
+          const onchainProposalId = pdas.proposal.id.toNumber();
 
-        return {
-          ...ipfsProposalMetadata,
-          dipId: ipfsProposalMetadata.dipId || onchainProposalId,
-          id: onchainProposalId,
-          creator: pdas.proposal.creator,
-          executor: pdas.proposal.executor,
-          strategy: pdas.proposal.strategy,
-          executed: pdas.proposal.executed,
-          canceled: pdas.proposal.canceled,
-          startBlock: pdas.proposal.startBlock.toNumber(),
-          endBlock: pdas.proposal.endBlock.toNumber(),
-          executionTime: pdas.proposal.executionTime.toString(),
-          forVotes: formatEther(pdas.proposal.forVotes),
-          againstVotes: formatEther(pdas.proposal.againstVotes),
-          state: pdas.proposalState,
-          proposalCreated: pdas.proposal.startBlock.sub(votingDelay).toNumber(),
-          totalVotingSupply: formatEther(votingSupply),
-          executionTimeWithGracePeriod: pdas.proposal.executionTime.isZero()
-            ? pdas.proposal.executionTime.toString()
-            : pdas.proposal.executionTime.add(executorVotingData.gracePeriod).toString(),
-          minimumQuorum: formatEther(numVotesMinQuorum),
-          minimumDiff: formatEther(numVotesVoteDifferential),
-        };
-      }),
+          return {
+            ...ipfsProposalMetadata,
+            dipId: ipfsProposalMetadata.dipId || onchainProposalId,
+            id: onchainProposalId,
+            creator: pdas.proposal.creator,
+            executor: pdas.proposal.executor,
+            strategy: pdas.proposal.strategy,
+            executed: pdas.proposal.executed,
+            canceled: pdas.proposal.canceled,
+            startBlock: pdas.proposal.startBlock.toNumber(),
+            endBlock: pdas.proposal.endBlock.toNumber(),
+            executionTime: pdas.proposal.executionTime.toString(),
+            forVotes: formatEther(pdas.proposal.forVotes),
+            againstVotes: formatEther(pdas.proposal.againstVotes),
+            state: pdas.proposalState,
+            proposalCreated: pdas.proposal.startBlock
+              .sub(votingDelay)
+              .toNumber(),
+            totalVotingSupply: formatEther(votingSupply),
+            executionTimeWithGracePeriod: pdas.proposal.executionTime.isZero()
+              ? pdas.proposal.executionTime.toString()
+              : pdas.proposal.executionTime
+                  .add(executorVotingData.gracePeriod)
+                  .toString(),
+            minimumQuorum: formatEther(numVotesMinQuorum),
+            minimumDiff: formatEther(numVotesVoteDifferential),
+          };
+        },
+      ),
     );
   }
 
-  public async getProposalMetadata(proposalId: number, limit: number): Promise<ProposalMetadata> {
-    const [
-      topForVotes,
-      topAgainstVotes,
-    ]: [
-      SubgraphProposalVote[],
-      SubgraphProposalVote[],
-    ] = await Promise.all([
-      executeGetSortedProposalVotesQuery(this.subgraphClient, proposalId, true, limit),
-      executeGetSortedProposalVotesQuery(this.subgraphClient, proposalId, false, limit),
-    ]);
+  public async getProposalMetadata(
+    proposalId: number,
+    limit: number,
+    network = Network.main,
+  ): Promise<ProposalMetadata> {
+    if (network === Network.main) {
+      const [topForVotes, topAgainstVotes] = await Promise.all([
+        executeGetSortedProposalVotesQuery(
+          this.subgraphClient,
+          proposalId,
+          true,
+          limit,
+        ),
+        executeGetSortedProposalVotesQuery(
+          this.subgraphClient,
+          proposalId,
+          false,
+          limit,
+        ),
+      ]);
 
-    return {
-      id: proposalId,
-      topForVotes,
-      topAgainstVotes,
-    };
+      return {
+        id: proposalId,
+        topForVotes,
+        topAgainstVotes,
+      };
+    }
+
+    else {
+      const { topForVotes, topAgainstVotes } = await getSortedProposalVotes(
+        this.subgraphClient,
+        proposalId,
+        limit,
+      );
+      return {
+        id: proposalId,
+        topForVotes,
+        topAgainstVotes,
+      };
+    }
   }
 
   public async getGovernanceVoters(

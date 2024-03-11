@@ -24,7 +24,9 @@ export const getSortedProposalVotesQuery = (
   limit: number,
 ): string => {
   if (limit <= 0 || limit > 1000) {
-    throw new Error('The limit parameter must be between 0 and 1000 (exclusive).');
+    throw new Error(
+      'The limit parameter must be between 0 and 1000 (exclusive).',
+    );
   }
 
   return `query {
@@ -51,7 +53,9 @@ export const executeGetSortedProposalVotesQuery = async (
 ): Promise<SubgraphProposalVote[]> => {
   const query: string = getSortedProposalVotesQuery(proposalId, support, limit);
 
-  const queryResult: OperationResult<any, {}> = await client.query(query).toPromise();
+  const queryResult: OperationResult<any, {}> = await client
+    .query(query)
+    .toPromise();
   if (!queryResult.data) {
     throw new Error(`Invalid GraphQL query ${query}`);
   }
@@ -60,18 +64,74 @@ export const executeGetSortedProposalVotesQuery = async (
   // If not, error will be thrown below.
 
   const topVotes: SubgraphProposalVote[] = [];
-  queryResult.data!.proposalVotes.forEach((vote: { user: SubgraphUser, votingPower: string }) => {
-    if (!vote?.user?.id || !vote?.votingPower) {
-      throw new Error(`
+  queryResult.data!.proposalVotes.forEach(
+    (vote: { user: SubgraphUser; votingPower: string }) => {
+      if (!vote?.user?.id || !vote?.votingPower) {
+        throw new Error(`
         Vote object returned from subgraph malformed. ProposalId: ${proposalId}, support: ${support}, limit: ${limit}.`);
-    }
+      }
 
-    topVotes.push({
-      userAddress: vote.user.id,
-      votingPower: formatEther(vote.votingPower),
-      support,
-    });
-  });
+      topVotes.push({
+        userAddress: vote.user.id,
+        votingPower: formatEther(vote.votingPower),
+        support,
+      });
+    },
+  );
 
   return topVotes;
+};
+
+export const getVotingQuery = (proposalId: number, limit: number) => {
+  return `{
+    voteEmitteds(
+      first: ${limit}, 
+      where: {
+        governor_id: "${proposalId}"
+      },
+      orderBy: votingPower, 
+      orderDirection: desc
+    ){
+      support
+      voter
+      votingPower
+    }
+  }`;
+};
+
+export const getSortedProposalVotes = async (
+  client: Client,
+  proposalId: number,
+  limit: number,
+) => {
+  const query = getVotingQuery(proposalId, limit);
+
+  const queryResult = await client.query(query).toPromise();
+  if (!queryResult.data) throw new Error(`Invalid GraphQL query ${query}`);
+
+  const topForVotes: SubgraphProposalVote[] = [];
+  const topAgainstVotes: SubgraphProposalVote[] = [];
+
+  queryResult.data!.voteEmitteds.forEach(
+    (vote: { voter: string; votingPower: string; support: boolean }) => {
+      if (vote.support)
+        topForVotes.push({
+          userAddress: vote.voter,
+          votingPower: vote.votingPower,
+          support: vote.support,
+        });
+      else {
+        topAgainstVotes.push({
+          userAddress: vote.voter,
+          votingPower: vote.votingPower,
+          support: vote.support,
+        });
+      }
+    },
+  );
+
+  return {
+    topForVotes,
+    topAgainstVotes,
+  };
 };

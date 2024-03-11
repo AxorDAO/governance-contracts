@@ -8,7 +8,7 @@ import {
   Executor__factory,
   LiquidityStakingV1__factory,
   ProxyAdmin__factory,
-  SafetyModuleV11__factory,
+  SafetyModuleV1__factory,
   Treasury__factory,
 } from '../../types';
 import { MerkleDistributorV1__factory } from '../../types/factories/MerkleDistributorV1__factory';
@@ -82,7 +82,7 @@ export async function deployPhase3({
   // Phase 2 deployed contracts.
   const rewardsTreasury = new Treasury__factory(deployer).attach(rewardsTreasuryAddress);
   const rewardsTreasuryProxyAdmin = new ProxyAdmin__factory(deployer).attach(rewardsTreasuryProxyAdminAddress);
-  const safetyModule = new SafetyModuleV11__factory(deployer).attach(safetyModuleAddress);
+  const safetyModule = new SafetyModuleV1__factory(deployer).attach(safetyModuleAddress);
   const safetyModuleProxyAdmin = new ProxyAdmin__factory(deployer).attach(safetyModuleProxyAdminAddress);
   const communityTreasury = new Treasury__factory(deployer).attach(communityTreasuryAddress);
   const communityTreasuryProxyAdmin = new ProxyAdmin__factory(deployer).attach(communityTreasuryProxyAdminAddress);
@@ -94,23 +94,6 @@ export async function deployPhase3({
   const deployerBalance = await axorToken.balanceOf(deployerAddress);
   if (deployerBalance.lt(toWad(500_000_00))) {
     throw new Error(`Need at least 500M AXOR to run this deploy script. Current balance: ${formatEther(deployerBalance)}`);
-  }
-
-  if (startStep <= 1) {
-    log('Step 1. Upgrade safety module');
-    await upgradeContract(
-      SafetyModuleV11__factory,
-      deployer,
-      safetyModuleAddress,
-      safetyModuleProxyAdmin,
-      [
-        axorTokenAddress,
-        axorTokenAddress,
-        rewardsTreasuryAddress,
-        deployConfig.SM_DISTRIBUTION_START,
-        deployConfig.SM_DISTRIBUTION_END,
-      ],
-    );
   }
 
   if (startStep <= 2) {

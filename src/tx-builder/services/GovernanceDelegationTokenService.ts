@@ -45,12 +45,11 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     @IsEthAddress('user')
     @IsEthAddressOrENS('delegatee')
     @IsEthAddress('governanceToken')
-      { user, delegatee, governanceToken }: GovDelegate,
+    { user, delegatee, governanceToken }: GovDelegate,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
 
     const delegateeAddress: string = await this.getDelegateeAddress(delegatee);
 
@@ -76,12 +75,11 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     @IsEthAddress('user')
     @IsEthAddressOrENS('delegatee')
     @IsEthAddress('governanceToken')
-      { user, delegatee, delegationType, governanceToken }: GovDelegateByType,
+    { user, delegatee, delegationType, governanceToken }: GovDelegateByType,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
 
     const delegateeAddress: string = await this.getDelegateeAddress(delegatee);
 
@@ -108,12 +106,11 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     @IsEthAddress('user')
     @IsEthAddressOrENS('delegatee')
     @IsEthAddress('governanceToken')
-      { user, delegatee, expiry, signature, governanceToken }: GovDelegateBySig,
+    { user, delegatee, expiry, signature, governanceToken }: GovDelegateBySig,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
     const nonce = await this.getNonce({ user, governanceToken });
     const { v, r, s } = splitSignature(signature);
 
@@ -146,19 +143,18 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     @IsEthAddress('user')
     @IsEthAddressOrENS('delegatee')
     @IsEthAddress('governanceToken')
-      {
-        user,
-        delegatee,
-        delegationType,
-        expiry,
-        signature,
-        governanceToken,
-      }: GovDelegateByTypeBySig,
+    {
+      user,
+      delegatee,
+      delegationType,
+      expiry,
+      signature,
+      governanceToken,
+    }: GovDelegateByTypeBySig,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const txs: EthereumTransactionTypeExtended[] = [];
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
     const nonce = await this.getNonce({ user, governanceToken });
     const { v, r, s } = splitSignature(signature);
 
@@ -192,13 +188,13 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     @IsEthAddressOrENS('delegatee')
     @IsEthAddress('governanceToken')
     @Is0OrPositiveAmount('nonce')
-      {
-        delegatee,
-        nonce,
-        expiry,
-        governanceTokenName,
-        governanceToken,
-      }: GovPrepareDelegateSig,
+    {
+      delegatee,
+      nonce,
+      expiry,
+      governanceTokenName,
+      governanceToken,
+    }: GovPrepareDelegateSig,
   ): Promise<string> {
     const delegateeAddress: string = await this.getDelegateeAddress(delegatee);
 
@@ -236,14 +232,14 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     @IsEthAddressOrENS('delegatee')
     @IsEthAddress('governanceToken')
     @Is0OrPositiveAmount('nonce')
-      {
-        delegatee,
-        type,
-        nonce,
-        expiry,
-        governanceTokenName,
-        governanceToken,
-      }: GovPrepareDelegateSigByType,
+    {
+      delegatee,
+      type,
+      nonce,
+      expiry,
+      governanceTokenName,
+      governanceToken,
+    }: GovPrepareDelegateSigByType,
   ): Promise<string> {
     const delegateeAddress: string = await this.getDelegateeAddress(delegatee);
 
@@ -282,11 +278,10 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
   public async getDelegateeByType(
     @IsEthAddress('delegator')
     @IsEthAddress('governanceToken')
-      { delegator, delegationType, governanceToken }: GovGetDelegateeByType,
+    { delegator, delegationType, governanceToken }: GovGetDelegateeByType,
   ): Promise<tEthereumAddress> {
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
     return governanceDelegationToken.getDelegateeByType(
       delegator,
       delegationType,
@@ -298,10 +293,7 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     delegator: tEthereumAddress,
     governanceToken: tEthereumAddress,
   ): Promise<GovTokenDelegatees> {
-    const [
-      propositionDelegatee,
-      votingDelegatee,
-    ] : [
+    const [propositionDelegatee, votingDelegatee]: [
       tEthereumAddress,
       tEthereumAddress,
     ] = await Promise.all([
@@ -327,11 +319,10 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
   public async getPowerCurrent(
     @IsEthAddress('user')
     @IsEthAddress('governanceToken')
-      { user, delegationType, governanceToken }: GovGetPowerCurrent,
+    { user, delegationType, governanceToken }: GovGetPowerCurrent,
   ): Promise<tStringDecimalUnits> {
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
     return (
       await governanceDelegationToken.getPowerCurrent(user, delegationType)
     ).toString();
@@ -342,11 +333,10 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
     @IsEthAddress('user')
     @IsEthAddress('governanceToken')
     @IsPositiveAmount('blockNumber')
-      { user, blockNumber, delegationType, governanceToken }: GovGetPowerAtBlock,
+    { user, blockNumber, delegationType, governanceToken }: GovGetPowerAtBlock,
   ): Promise<tStringDecimalUnits> {
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
     return (
       await governanceDelegationToken.getPowerAtBlock(
         user,
@@ -360,11 +350,10 @@ export default class GovernanceDelegationTokenService extends BaseService<AxorTo
   public async getNonce(
     @IsEthAddress('user')
     @IsEthAddress('governanceToken')
-      { user, governanceToken }: GovGetNonce,
+    { user, governanceToken }: GovGetNonce,
   ): Promise<tStringDecimalUnits> {
-    const governanceDelegationToken: AxorToken = this.getContractInstance(
-      governanceToken,
-    );
+    const governanceDelegationToken: AxorToken =
+      this.getContractInstance(governanceToken);
     // eslint-disable-next-line no-underscore-dangle
     return (await governanceDelegationToken.nonces(user)).toString();
   }

@@ -6,15 +6,10 @@ import { BigNumber, BigNumberish, ContractTransaction, Signer } from 'ethers';
 import _ from 'lodash';
 
 import config from '../../src/config';
-import {
-  ZERO_ADDRESS,
-} from '../../src/lib/constants';
+import { ZERO_ADDRESS } from '../../src/lib/constants';
 import { getRole } from '../../src/lib/util';
 import { Role } from '../../src/types';
-import {
-  LiquidityStakingV1,
-  SafetyModuleV1,
-} from '../../types';
+import { LiquidityStakingV1, SafetyModuleV1 } from '../../types';
 import { IERC20 } from '../../types/IERC20';
 import { TestContext } from './describe-contract';
 import { increaseTimeAndMine, latestBlockTimestamp } from './evm';
@@ -88,15 +83,11 @@ function customCloner(
   }
 }
 
-function asLS(
-  contract: GenericStakingModule,
-): LiquidityStakingV1 {
+function asLS(contract: GenericStakingModule): LiquidityStakingV1 {
   return contract as LiquidityStakingV1;
 }
 
-function asSM(
-  contract: GenericStakingModule,
-): SafetyModuleV1 {
+function asSM(contract: GenericStakingModule): SafetyModuleV1 {
   return contract as SafetyModuleV1;
 }
 
@@ -154,14 +145,20 @@ export class StakingHelper {
 
   // ============ Staked Token ============
 
-  async mintAndApprove(account: string | SignerWithAddress, amount: BigNumberish): Promise<void> {
+  async mintAndApprove(
+    account: string | SignerWithAddress,
+    amount: BigNumberish,
+  ): Promise<void> {
     const address = asAddress(account);
     const signer = this.signers[address];
     await this.token.connect(this.tokenSource).transfer(address, amount);
     await this.token.connect(signer).approve(this.contract.address, amount);
   }
 
-  async approveContract(account: string | SignerWithAddress, amount: BigNumberish): Promise<void> {
+  async approveContract(
+    account: string | SignerWithAddress,
+    amount: BigNumberish,
+  ): Promise<void> {
     const address = asAddress(account);
     const signer = this.signers[address];
     await this.token.connect(signer).approve(this.contract.address, amount);
@@ -169,7 +166,10 @@ export class StakingHelper {
 
   // ============ LS1Admin ============
 
-  async setEpochParameters(interval: BigNumberish, offset: BigNumberish): Promise<void> {
+  async setEpochParameters(
+    interval: BigNumberish,
+    offset: BigNumberish,
+  ): Promise<void> {
     const shouldVerifyEpoch = await this.contract.hasEpochZeroStarted();
 
     // Get current epoch.
@@ -185,12 +185,20 @@ export class StakingHelper {
     // Verify current epoch unchanged.
     if (shouldVerifyEpoch) {
       const newEpoch = (await this.getCurrentEpoch()).toNumber();
-      expectEq(currentEpoch, newEpoch, 'setEpochParameters: epoch number changed');
+      expectEq(
+        currentEpoch,
+        newEpoch,
+        'setEpochParameters: epoch number changed',
+      );
     }
 
     // Check getters.
     const epochParameters = await this.contract.getEpochParameters();
-    expectEq(epochParameters.interval, interval, 'setEpochParameters: interval');
+    expectEq(
+      epochParameters.interval,
+      interval,
+      'setEpochParameters: interval',
+    );
     expectEq(epochParameters.offset, offset, 'setEpochParameters: offset');
   }
 
@@ -200,7 +208,11 @@ export class StakingHelper {
       .withArgs(blackoutWindow);
 
     // Check getters.
-    expectEq(await this.contract.getBlackoutWindow(), blackoutWindow, 'setBlackoutWindow');
+    expectEq(
+      await this.contract.getBlackoutWindow(),
+      blackoutWindow,
+      'setBlackoutWindow',
+    );
   }
 
   async setRewardsPerSecond(emissionRate: BigNumberish): Promise<void> {
@@ -209,24 +221,37 @@ export class StakingHelper {
       .withArgs(emissionRate);
 
     // Check getters.
-    expectEq(await this.contract.getRewardsPerSecond(), emissionRate, 'setRewardsPerSecond');
+    expectEq(
+      await this.contract.getRewardsPerSecond(),
+      emissionRate,
+      'setRewardsPerSecond',
+    );
   }
 
-  async setBorrowerAllocations(allocations: Record<string, number>): Promise<void> {
+  async setBorrowerAllocations(
+    allocations: Record<string, number>,
+  ): Promise<void> {
     const addresses = Object.keys(allocations);
     const points = addresses.map((a) => {
       const pointAllocation = allocations[a] * BORROWING_TOTAL_ALLOCATION;
       if (pointAllocation !== Math.floor(pointAllocation)) {
-        throw new Error('Borrower allocation can have at most 4 decimals of precision');
+        throw new Error(
+          'Borrower allocation can have at most 4 decimals of precision',
+        );
       }
       if (pointAllocation > BORROWING_TOTAL_ALLOCATION) {
-        throw new Error('setBorrowerAllocations should be called with allocations as fractions');
+        throw new Error(
+          'setBorrowerAllocations should be called with allocations as fractions',
+        );
       }
       return pointAllocation;
     });
 
     // Automatically set address(0) allocation to zero, if this is the first time setting allocations.
-    if (!this.state.madeInitialAllocation && !addresses.includes(ZERO_ADDRESS)) {
+    if (
+      !this.state.madeInitialAllocation &&
+      !addresses.includes(ZERO_ADDRESS)
+    ) {
       addresses.push(ZERO_ADDRESS);
       points.push(0);
     }
@@ -238,17 +263,27 @@ export class StakingHelper {
 
     // Verify borrower next allocations.
     for (let i = 0; i < addresses.length; i++) {
-      const allocationNext = await asLS(this.contract).getAllocationFractionNextEpoch(addresses[i]);
-      expectEq(allocationNext, points[i], `setBorrowerAllocations: allocationNext[${i}]`);
+      const allocationNext = await asLS(
+        this.contract,
+      ).getAllocationFractionNextEpoch(addresses[i]);
+      expectEq(
+        allocationNext,
+        points[i],
+        `setBorrowerAllocations: allocationNext[${i}]`,
+      );
     }
 
     // If before epoch zero, verify borrower current allocations.
     if (!(await this.contract.hasEpochZeroStarted())) {
       for (let i = 0; i < addresses.length; i++) {
-        const allocationCurrent = await asLS(this.contract).getAllocationFractionCurrentEpoch(
-          addresses[i],
+        const allocationCurrent = await asLS(
+          this.contract,
+        ).getAllocationFractionCurrentEpoch(addresses[i]);
+        expectEq(
+          allocationCurrent,
+          points[i],
+          `setBorrowerAllocations: allocationCurrent[${i}]`,
         );
-        expectEq(allocationCurrent, points[i], `setBorrowerAllocations: allocationCurrent[${i}]`);
       }
     }
 
@@ -257,14 +292,19 @@ export class StakingHelper {
       (addr) => asLS(this.contract).getAllocationFractionCurrentEpoch(addr),
       addresses,
     );
-    expectEq(curSum, BORROWING_TOTAL_ALLOCATION, 'setBorrowerAllocations: curSum');
-    const nextSum = await this.sumByAddr(
-      (addr) => {
-        return asLS(this.contract).getAllocationFractionNextEpoch(addr);
-      },
-      addresses,
+    expectEq(
+      curSum,
+      BORROWING_TOTAL_ALLOCATION,
+      'setBorrowerAllocations: curSum',
     );
-    expectEq(nextSum, BORROWING_TOTAL_ALLOCATION, 'setBorrowerAllocations: nextSum');
+    const nextSum = await this.sumByAddr((addr) => {
+      return asLS(this.contract).getAllocationFractionNextEpoch(addr);
+    }, addresses);
+    expectEq(
+      nextSum,
+      BORROWING_TOTAL_ALLOCATION,
+      'setBorrowerAllocations: nextSum',
+    );
   }
 
   async setBorrowingRestriction(
@@ -272,10 +312,15 @@ export class StakingHelper {
     isRestricted: boolean,
   ): Promise<void> {
     const borrowerAddress = asAddress(borrower);
-    const tx = await asLS(this.contract).setBorrowingRestriction(borrowerAddress, isRestricted);
+    const tx = await asLS(this.contract).setBorrowingRestriction(
+      borrowerAddress,
+      isRestricted,
+    );
 
     // Get previous status.
-    const wasRestricted = await asLS(this.contract).isBorrowingRestrictedForBorrower(borrowerAddress);
+    const wasRestricted = await asLS(
+      this.contract,
+    ).isBorrowingRestrictedForBorrower(borrowerAddress);
 
     // If status changed, expect event.
     if (wasRestricted !== isRestricted) {
@@ -285,10 +330,11 @@ export class StakingHelper {
     }
 
     // Check new status.
-    expect(await asLS(this.contract).isBorrowingRestrictedForBorrower(borrowerAddress)).to.be.equal(
-      isRestricted,
-      'setBorrowingRestriction',
-    );
+    expect(
+      await asLS(this.contract).isBorrowingRestrictedForBorrower(
+        borrowerAddress,
+      ),
+    ).to.be.equal(isRestricted, 'setBorrowingRestriction');
   }
 
   async addOperator(
@@ -332,7 +378,9 @@ export class StakingHelper {
 
     // Query ERC20 balance before.
     const stakerBalanceBefore = await this.token.balanceOf(address);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
     let stakeAmount = BigNumber.from(amount);
 
     if (this.isSafetyModule) {
@@ -353,11 +401,15 @@ export class StakingHelper {
 
     // Update state.
     this.state.netDeposits = this.state.netDeposits.add(amount);
-    await this.state.activeBalanceByStaker[address].increaseCurrentAndNext(stakeAmount);
+    await this.state.activeBalanceByStaker[address].increaseCurrentAndNext(
+      stakeAmount,
+    );
 
     // Expect token transfer.
     const borrowerBalanceAfter = await this.token.balanceOf(address);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceAfter.sub(contractBalanceBefore),
       amount,
@@ -436,7 +488,9 @@ export class StakingHelper {
 
     // Query ERC20 balance before.
     const recipientBalanceBefore = await this.token.balanceOf(recipientAddress);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
 
     if (this.isSafetyModule) {
       await expect(signer.withdrawStake(recipientAddress, amount))
@@ -450,11 +504,15 @@ export class StakingHelper {
 
     // Update state.
     this.state.netDeposits = this.state.netDeposits.sub(amount);
-    await this.state.inactiveBalanceByStaker[address].decreaseCurrentAndNext(amount);
+    await this.state.inactiveBalanceByStaker[address].decreaseCurrentAndNext(
+      amount,
+    );
 
     // Expect token transfer.
     const recipientBalanceAfter = await this.token.balanceOf(recipientAddress);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceBefore.sub(contractBalanceAfter),
       amount,
@@ -491,7 +549,9 @@ export class StakingHelper {
 
     // Query ERC20 balance before.
     const recipientBalanceBefore = await this.token.balanceOf(recipientAddress);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
 
     // Get current stake user has available to withdraw.
     const amount = await this.contract.getStakeAvailableToWithdraw(address);
@@ -501,7 +561,9 @@ export class StakingHelper {
       // Get underlyingAmount after converting by exchange rate (if this is the safety module).
       const exchangeRate = await asSM(this.contract).getExchangeRate();
       const exchangeRateBase = await asSM(this.contract).EXCHANGE_RATE_BASE();
-      underlyingAmount = underlyingAmount.mul(exchangeRateBase).div(exchangeRate);
+      underlyingAmount = underlyingAmount
+        .mul(exchangeRateBase)
+        .div(exchangeRate);
 
       await expect(signer.withdrawMaxStake(recipientAddress))
         .to.emit(this.contract, 'WithdrewStake')
@@ -514,11 +576,15 @@ export class StakingHelper {
 
     // Update state.
     this.state.netDeposits = this.state.netDeposits.sub(underlyingAmount);
-    await this.state.inactiveBalanceByStaker[address].decreaseCurrentAndNext(amount);
+    await this.state.inactiveBalanceByStaker[address].decreaseCurrentAndNext(
+      amount,
+    );
 
     // Expect token transfer.
     const recipientBalanceAfter = await this.token.balanceOf(recipientAddress);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceBefore.sub(contractBalanceAfter),
       underlyingAmount,
@@ -558,7 +624,9 @@ export class StakingHelper {
 
     // Query ERC20 balance before.
     const recipientBalanceBefore = await this.token.balanceOf(recipientAddress);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
 
     await expect(asLS(signer).withdrawDebt(recipientAddress, amount))
       .to.emit(this.contract, 'WithdrewDebt')
@@ -570,7 +638,9 @@ export class StakingHelper {
 
     // Expect token transfer.
     const recipientBalanceAfter = await this.token.balanceOf(recipientAddress);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceBefore.sub(contractBalanceAfter),
       amount,
@@ -603,14 +673,18 @@ export class StakingHelper {
     const signer = this.users[address];
 
     // Get current debt staker has available to withdraw.
-    const amount = await asLS(this.contract).getDebtAvailableToWithdraw(address);
+    const amount = await asLS(this.contract).getDebtAvailableToWithdraw(
+      address,
+    );
 
     // Get new balance.
     const newDebtBalance = this.state.debtBalanceByStaker[address].sub(amount);
 
     // Query ERC20 balance before.
     const recipientBalanceBefore = await this.token.balanceOf(recipientAddress);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
 
     await expect(asLS(signer).withdrawMaxDebt(recipientAddress))
       .to.emit(this.contract, 'WithdrewDebt')
@@ -622,7 +696,9 @@ export class StakingHelper {
 
     // Expect token transfer.
     const recipientBalanceAfter = await this.token.balanceOf(recipientAddress);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceBefore.sub(contractBalanceAfter),
       amount,
@@ -665,8 +741,12 @@ export class StakingHelper {
 
     // Calculate the expected rewards.
     const rewardsRate = await this.contract.getRewardsPerSecond();
-    const end = BigNumber.from(endTimestamp || await latestBlockTimestamp());
-    const expectedRewards = new BNJS(end.sub(startTimestamp).mul(rewardsRate).toString()).times(stakerShare).toFixed(0);
+    const end = BigNumber.from(endTimestamp || (await latestBlockTimestamp()));
+    const expectedRewards = new BNJS(
+      end.sub(startTimestamp).mul(rewardsRate).toString(),
+    )
+      .times(stakerShare)
+      .toFixed(0);
 
     const optionsWithRounding = {
       ...options,
@@ -683,7 +763,9 @@ export class StakingHelper {
     );
 
     // Send transaction.
-    const parsedLogs = await this.parseLogs(signer.claimRewards(recipientAddress));
+    const parsedLogs = await this.parseLogs(
+      signer.claimRewards(recipientAddress),
+    );
 
     // Check logs.
     const logs = _.filter(parsedLogs, { name: 'ClaimedRewards' });
@@ -797,11 +879,14 @@ export class StakingHelper {
     options: InvariantCheckOptions = {},
   ): Promise<void> {
     // Get new borrowed balance.
-    const newBorrowedBalance = this.state.netBorrowedByBorrower[address].add(amount);
+    const newBorrowedBalance =
+      this.state.netBorrowedByBorrower[address].add(amount);
 
     // Query ERC20 balance before.
     const borrowerBalanceBefore = await this.token.balanceOf(address);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
 
     await sendTx(newBorrowedBalance);
 
@@ -811,7 +896,9 @@ export class StakingHelper {
 
     // Expect token transfer.
     const borrowerBalanceAfter = await this.token.balanceOf(address);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceBefore.sub(contractBalanceAfter),
       amount,
@@ -861,11 +948,14 @@ export class StakingHelper {
     const borrowerAddress = asAddress(borrower);
 
     // Get new borrowed balance.
-    const newBorrowedBalance = this.state.netBorrowedByBorrower[borrowerAddress].sub(amount);
+    const newBorrowedBalance =
+      this.state.netBorrowedByBorrower[borrowerAddress].sub(amount);
 
     // Query balance before.
     const borrowerBalanceBefore = await this.token.balanceOf(address);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
 
     await sendTx(newBorrowedBalance);
 
@@ -875,7 +965,9 @@ export class StakingHelper {
 
     // Expect token transfer.
     const borrowerBalanceAfter = await this.token.balanceOf(address);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceAfter.sub(contractBalanceBefore),
       amount,
@@ -902,11 +994,14 @@ export class StakingHelper {
     const signer = this.users[address];
 
     // Get new debt balance.
-    const newDebtBalance = this.state.debtBalanceByBorrower[borrowerAddress].sub(amount);
+    const newDebtBalance =
+      this.state.debtBalanceByBorrower[borrowerAddress].sub(amount);
 
     // Query balance before.
     const borrowerBalanceBefore = await this.token.balanceOf(address);
-    const contractBalanceBefore = await this.token.balanceOf(this.contract.address);
+    const contractBalanceBefore = await this.token.balanceOf(
+      this.contract.address,
+    );
 
     await expect(asLS(signer).repayDebt(borrowerAddress, amount))
       .to.emit(this.contract, 'RepaidDebt')
@@ -918,7 +1013,9 @@ export class StakingHelper {
 
     // Expect token transfer.
     const borrowerBalanceAfter = await this.token.balanceOf(address);
-    const contractBalanceAfter = await this.token.balanceOf(this.contract.address);
+    const contractBalanceAfter = await this.token.balanceOf(
+      this.contract.address,
+    );
     expectEq(
       contractBalanceAfter.sub(contractBalanceBefore),
       amount,
@@ -965,34 +1062,51 @@ export class StakingHelper {
       const expectedDebt = borrowersWithExpectedDebts[borrower];
 
       if (BigNumber.from(expectedDebt).isZero()) {
-        expect(borrower in newDebtByBorrower, 'markDebt: Expected no debt').to.be.false();
+        expect(
+          borrower in newDebtByBorrower,
+          'markDebt: Expected no debt',
+        ).to.be.false();
       } else {
         const loggedDebt = newDebtByBorrower[borrower];
-        expectEq(loggedDebt, expectedDebt, `markDebt: ${borrower} loggedDebt ≠ expectedDebt`);
+        expectEq(
+          loggedDebt,
+          expectedDebt,
+          `markDebt: ${borrower} loggedDebt ≠ expectedDebt`,
+        );
       }
     }
 
     // Check slashed inactive balances log.
-    const slashedInactive = _.filter(parsedLogs, { name: 'ConvertedInactiveBalancesToDebt' });
-    expect(slashedInactive).to.have.length(1, 'markDebt: Converted inactive balances log');
-    const newDebtSum = _.sumBy(_.values(newDebtByBorrower), (x) => x.toNumber());
-    const slashedLogArgs: [BigNumber, BigNumber, BigNumber] = slashedInactive[0].args as [
-      BigNumber,
-      BigNumber,
-      BigNumber,
-    ];
+    const slashedInactive = _.filter(parsedLogs, {
+      name: 'ConvertedInactiveBalancesToDebt',
+    });
+    expect(slashedInactive).to.have.length(
+      1,
+      'markDebt: Converted inactive balances log',
+    );
+    const newDebtSum = _.sumBy(_.values(newDebtByBorrower), (x) =>
+      x.toNumber(),
+    );
+    const slashedLogArgs: [BigNumber, BigNumber, BigNumber] = slashedInactive[0]
+      .args as [BigNumber, BigNumber, BigNumber];
     const slashedAmount = slashedLogArgs[0];
     expectEq(slashedAmount, newDebtSum, 'markDebt: slashedAmount ≠ newDebtSum');
-    const expectedIndexInt = SHORTFALL_INDEX_BASE.times(expectedIndex).toFixed(0, BNJS.ROUND_FLOOR);
+    const expectedIndexInt = SHORTFALL_INDEX_BASE.times(expectedIndex).toFixed(
+      0,
+      BNJS.ROUND_FLOOR,
+    );
     expectEq(slashedLogArgs[1], expectedIndexInt, 'markDebt: expectedIndex');
 
     // Check borrower restricted logs.
-    const restricted = _.filter(parsedLogs, { name: 'BorrowingRestrictionChanged' });
+    const restricted = _.filter(parsedLogs, {
+      name: 'BorrowingRestrictionChanged',
+    });
     expect(restricted).to.have.length(
       newlyRestrictedBorrowers.length,
       'markDebt: Number of restricted borrowers',
     );
-    const newlyRestrictedBorrowersAddresses = newlyRestrictedBorrowers.map(asAddress);
+    const newlyRestrictedBorrowersAddresses =
+      newlyRestrictedBorrowers.map(asAddress);
     for (const restrictedLog of restricted) {
       const [restrictedBorrower, isRestricted] = restrictedLog.args;
       expect(newlyRestrictedBorrowersAddresses).to.contain(
@@ -1002,18 +1116,20 @@ export class StakingHelper {
       expect(isRestricted, 'markDebt: isRestricted').to.be.true();
 
       // Check getters.
-      expect(await asLS(this.contract).isBorrowingRestrictedForBorrower(restrictedBorrower)).to.be.true();
+      expect(
+        await asLS(this.contract).isBorrowingRestrictedForBorrower(
+          restrictedBorrower,
+        ),
+      ).to.be.true();
     }
 
     // Update state and check invariants.
     this.state.netDeposits = this.state.netDeposits.sub(newDebtSum);
     _.forEach(borrowersWithExpectedDebts, (newDebt, borrower) => {
-      this.state.debtBalanceByBorrower[borrower] = this.state.debtBalanceByBorrower[borrower].add(
-        newDebt,
-      );
-      this.state.netBorrowedByBorrower[borrower] = this.state.netBorrowedByBorrower[borrower].sub(
-        newDebt,
-      );
+      this.state.debtBalanceByBorrower[borrower] =
+        this.state.debtBalanceByBorrower[borrower].add(newDebt);
+      this.state.netBorrowedByBorrower[borrower] =
+        this.state.netBorrowedByBorrower[borrower].sub(newDebt);
     });
     await Promise.all(
       _.map(this.state.inactiveBalanceByStaker, async (balance, address) => {
@@ -1023,14 +1139,15 @@ export class StakingHelper {
         }
 
         const oldBalance = await balance.getCurrent();
-        const newBalance = BigNumber.from(Math.floor(oldBalance.toNumber() * expectedIndex));
+        const newBalance = BigNumber.from(
+          Math.floor(oldBalance.toNumber() * expectedIndex),
+        );
         const debtAmount = oldBalance.sub(newBalance);
         await balance.decreaseCurrentAndNext(debtAmount);
 
         if (!debtAmount.isZero()) {
-          this.state.debtBalanceByStaker[address] = this.state.debtBalanceByStaker[address].add(
-            debtAmount,
-          );
+          this.state.debtBalanceByStaker[address] =
+            this.state.debtBalanceByStaker[address].add(debtAmount);
         }
       }),
     );
@@ -1041,7 +1158,9 @@ export class StakingHelper {
   }
 
   async expectNoShortfall(): Promise<void> {
-    await expect(asLS(this.contract).markDebt([])).to.be.revertedWith('LS1DebtAccounting: No shortfall');
+    await expect(asLS(this.contract).markDebt([])).to.be.revertedWith(
+      'LS1DebtAccounting: No shortfall',
+    );
   }
 
   // ============ LS1Operators ============
@@ -1057,7 +1176,8 @@ export class StakingHelper {
     const stakerAddress = asAddress(staker);
 
     // Get new balance.
-    const newDebtBalance = this.state.debtBalanceByStaker[stakerAddress].sub(amount);
+    const newDebtBalance =
+      this.state.debtBalanceByStaker[stakerAddress].sub(amount);
 
     await expect(asLS(signer).decreaseStakerDebt(stakerAddress, amount))
       .to.emit(this.contract, 'OperatorDecreasedStakerDebt')
@@ -1088,7 +1208,8 @@ export class StakingHelper {
     const borrowerAddress = asAddress(borrower);
 
     // Get new balance.
-    const newDebtBalance = this.state.debtBalanceByBorrower[borrowerAddress].sub(amount);
+    const newDebtBalance =
+      this.state.debtBalanceByBorrower[borrowerAddress].sub(amount);
 
     await expect(asLS(signer).decreaseBorrowerDebt(borrowerAddress, amount))
       .to.emit(this.contract, 'OperatorDecreasedBorrowerDebt')
@@ -1117,10 +1238,14 @@ export class StakingHelper {
     amount: BigNumberish,
     options: InvariantCheckOptions = {},
   ): Promise<void> {
-    expect(await asLS(this.contract).getBorrowableAmount(borrower.address)).to.equal(amount);
+    expect(
+      await asLS(this.contract).getBorrowableAmount(borrower.address),
+    ).to.equal(amount);
 
     if (BigNumber.from(amount).isZero()) {
-      await expect(this.borrow(borrower, amount, options)).to.be.revertedWith('LS1Borrowing: Cannot borrow zero');
+      await expect(this.borrow(borrower, amount, options)).to.be.revertedWith(
+        'LS1Borrowing: Cannot borrow zero',
+      );
     } else {
       await this.borrow(borrower, amount, options);
     }
@@ -1139,7 +1264,9 @@ export class StakingHelper {
     amount: BigNumberish,
     options: InvariantCheckOptions = {},
   ): Promise<void> {
-    expect(await asLS(this.contract).getBorrowerDebtBalance(borrower.address)).to.equal(amount);
+    expect(
+      await asLS(this.contract).getBorrowerDebtBalance(borrower.address),
+    ).to.equal(amount);
     await this.repayDebt(borrower, borrower, amount, options);
     await expect(this.repayDebt(borrower, borrower, 1)).to.be.revertedWith(
       'LS1Borrowing: Repay > debt',
@@ -1173,9 +1300,15 @@ export class StakingHelper {
     options: InvariantCheckOptions = {},
   ): Promise<void> {
     // Calculate available amount ourselves.
-    const contractAvailable = await asLS(this.contract).getTotalDebtAvailableToWithdraw();
-    const stakerAvailable = await asLS(this.contract).getStakerDebtBalance(staker.address);
-    const available = contractAvailable.lt(stakerAvailable) ? contractAvailable : stakerAvailable;
+    const contractAvailable = await asLS(
+      this.contract,
+    ).getTotalDebtAvailableToWithdraw();
+    const stakerAvailable = await asLS(this.contract).getStakerDebtBalance(
+      staker.address,
+    );
+    const available = contractAvailable.lt(stakerAvailable)
+      ? contractAvailable
+      : stakerAvailable;
 
     // Compare with smart contract calculation.
     expectEq(
@@ -1187,14 +1320,20 @@ export class StakingHelper {
     // Compare with amount, and expect exactly that amount to be withdrawable.
     expectEq(available, amount, 'fullWithdrawDebt: available vs. amount');
     await this.withdrawDebt(staker, staker, amount, options);
-    await expect(this.withdrawDebt(staker, staker, 1)).to.be.revertedWith('LS1Staking');
+    await expect(this.withdrawDebt(staker, staker, 1)).to.be.revertedWith(
+      'LS1Staking',
+    );
   }
 
   // ============ Other ============
 
   async getCurrentEpoch(): Promise<BigNumber> {
     const currentEpoch = await this.contract.getCurrentEpoch();
-    expectGte(currentEpoch, this.state.lastCurrentEpoch, 'Current epoch went backwards');
+    expectGte(
+      currentEpoch,
+      this.state.lastCurrentEpoch,
+      'Current epoch went backwards',
+    );
     this.state.lastCurrentEpoch = currentEpoch;
     return currentEpoch;
   }
@@ -1212,7 +1351,9 @@ export class StakingHelper {
       // X = Total Borrowed + Contract Balance – Debt Available to Withdraw – Naked ERC20 Transfers In
       const borrowed = await asLS(this.contract).getTotalBorrowedBalance();
       const balance = await this.token.balanceOf(this.contract.address);
-      availableDebt = await asLS(this.contract).getTotalDebtAvailableToWithdraw();
+      availableDebt = await asLS(
+        this.contract,
+      ).getTotalDebtAvailableToWithdraw();
       expectEq(
         borrowed.add(balance).sub(availableDebt),
         this.state.netDeposits,
@@ -1221,16 +1362,28 @@ export class StakingHelper {
     }
 
     // X = Next Total Active + Next Total Inactive
-    const totalActiveNext = await this.contract.getTotalActiveBalanceNextEpoch();
-    const totalInactiveNext = await this.contract.getTotalInactiveBalanceNextEpoch();
+    const totalActiveNext =
+      await this.contract.getTotalActiveBalanceNextEpoch();
+    const totalInactiveNext =
+      await this.contract.getTotalInactiveBalanceNextEpoch();
     const activePlusInactiveNext = totalActiveNext.add(totalInactiveNext);
-    expectEq(activePlusInactiveNext, this.state.netDeposits, 'Invariant: activePlusInactiveNext');
+    expectEq(
+      activePlusInactiveNext,
+      this.state.netDeposits,
+      'Invariant: activePlusInactiveNext',
+    );
     //
     // X = Current Total Active + Current Total Inactive
-    const totalActiveCur = await this.contract.getTotalActiveBalanceCurrentEpoch();
-    const totalInactiveCur = await this.contract.getTotalInactiveBalanceCurrentEpoch();
+    const totalActiveCur =
+      await this.contract.getTotalActiveBalanceCurrentEpoch();
+    const totalInactiveCur =
+      await this.contract.getTotalInactiveBalanceCurrentEpoch();
     const activePlusInactiveCur = totalActiveCur.add(totalInactiveCur);
-    expectEq(activePlusInactiveCur, this.state.netDeposits, 'Invariant: activePlusInactiveCur');
+    expectEq(
+      activePlusInactiveCur,
+      this.state.netDeposits,
+      'Invariant: activePlusInactiveCur',
+    );
 
     // Active balance accounting
     //
@@ -1242,7 +1395,11 @@ export class StakingHelper {
       return this.state.activeBalanceByStaker[addr].getCurrent();
     });
     expectEq(userActiveCur, totalActiveCur, 'Invariant: userActiveCur');
-    expectEq(userActiveLocalCur, totalActiveCur, 'Invariant: userActiveLocalCur');
+    expectEq(
+      userActiveLocalCur,
+      totalActiveCur,
+      'Invariant: userActiveLocalCur',
+    );
     //
     // Total Next Active = ∑ User Next Active
     const userActiveNext = await this.sumByAddr((addr) =>
@@ -1252,7 +1409,11 @@ export class StakingHelper {
       return this.state.activeBalanceByStaker[addr].getNext();
     });
     expectEq(userActiveNext, totalActiveNext, 'Invariant: userActiveNext');
-    expectEq(userActiveLocalNext, totalActiveNext, 'Invariant: userActiveLocalNext');
+    expectEq(
+      userActiveLocalNext,
+      totalActiveNext,
+      'Invariant: userActiveLocalNext',
+    );
 
     // Inactive balance accounting
     //
@@ -1271,7 +1432,11 @@ export class StakingHelper {
       options,
       'Invariant: userInactiveCur',
     );
-    expectEq(userInactiveLocalCur, userInactiveCur, 'Invariant: userInactiveLocalCur');
+    expectEq(
+      userInactiveLocalCur,
+      userInactiveCur,
+      'Invariant: userInactiveLocalCur',
+    );
 
     // Exit early if testing the safety module.
     if (this.isSafetyModule) {
@@ -1282,15 +1447,21 @@ export class StakingHelper {
     //
     // Total Borrower Debt = ∑ Borrower Debt
     // Total Borrower Debt ≈ (∑ Staker Debt) - Debt Available to Withdraw
-    const totalBorrowerDebt = await asLS(this.contract).getTotalBorrowerDebtBalance();
-    const borrowerDebt = await this.sumByAddr((addr) => asLS(this.contract).getBorrowerDebtBalance(addr));
+    const totalBorrowerDebt = await asLS(
+      this.contract,
+    ).getTotalBorrowerDebtBalance();
+    const borrowerDebt = await this.sumByAddr((addr) =>
+      asLS(this.contract).getBorrowerDebtBalance(addr),
+    );
     expectEq(totalBorrowerDebt, borrowerDebt, 'Invariant: borrowerDebt');
     // This invariant is violated if the debt operator was used to adjust balances unequally.
     if (!options.skipStakerVsBorrowerDebtComparison) {
       const stakerDebt = await this.sumByAddr((addr) => {
         return asLS(this.contract).getStakerDebtBalance(addr);
       });
-      const totalBorrowerDebtAndAvailableToWithdraw = totalBorrowerDebt.add(availableDebt!);
+      const totalBorrowerDebtAndAvailableToWithdraw = totalBorrowerDebt.add(
+        availableDebt!,
+      );
       expectEqualExceptRounding(
         totalBorrowerDebtAndAvailableToWithdraw,
         stakerDebt,
@@ -1300,8 +1471,14 @@ export class StakingHelper {
     }
 
     // Debt available to withdraw.
-    const availableToWithdraw = await asLS(this.contract).getTotalDebtAvailableToWithdraw();
-    expectEq(this.state.netDebtDeposits, availableToWithdraw, 'Invariant: availableToWithdraw');
+    const availableToWithdraw = await asLS(
+      this.contract,
+    ).getTotalDebtAvailableToWithdraw();
+    expectEq(
+      this.state.netDebtDeposits,
+      availableToWithdraw,
+      'Invariant: availableToWithdraw',
+    );
   }
 
   async elapseEpochWithExpectedBalanceUpdates(
@@ -1346,13 +1523,17 @@ export class StakingHelper {
     expectEq(
       await this.contract.getTotalActiveBalanceCurrentEpoch(),
       sumCurrentActiveBefore,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total current active balance before`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total current active balance before`,
     );
     expectEqualExceptRounding(
       await this.contract.getTotalInactiveBalanceCurrentEpoch(),
       sumCurrentInactiveBefore,
       options,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total current inactive balance before`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total current inactive balance before`,
     );
 
     // Check next balances before.
@@ -1389,17 +1570,25 @@ export class StakingHelper {
     expectEq(
       await this.contract.getTotalActiveBalanceNextEpoch(),
       sumNextActiveBefore,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total next active balance before`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total next active balance before`,
     );
     expectEqualExceptRounding(
       await this.contract.getTotalInactiveBalanceNextEpoch(),
       sumNextInactiveBefore,
       options,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total next inactive balance before`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total next inactive balance before`,
     );
 
     await this.elapseEpoch();
-    expectEq(await this.getCurrentEpoch(), currentEpoch + 1, 'elaspeEpoch: next epoch number');
+    expectEq(
+      await this.getCurrentEpoch(),
+      currentEpoch + 1,
+      'elaspeEpoch: next epoch number',
+    );
 
     // Check current and next balances after.
     await Promise.all(
@@ -1449,28 +1638,38 @@ export class StakingHelper {
     expectEq(
       await this.contract.getTotalActiveBalanceCurrentEpoch(),
       sumActiveAfter,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total current inactive balance after`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total current inactive balance after`,
     );
     expectEq(
       await this.contract.getTotalActiveBalanceNextEpoch(),
       sumActiveAfter,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total current inactive balance after`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total current inactive balance after`,
     );
     expectEqualExceptRounding(
       await this.contract.getTotalInactiveBalanceCurrentEpoch(),
       sumInactiveAfter,
       options,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total next inactive balance after`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total next inactive balance after`,
     );
     expectEqualExceptRounding(
       await this.contract.getTotalInactiveBalanceNextEpoch(),
       sumInactiveAfter,
       options,
-      `elapseEpoch(${currentEpoch} -> ${currentEpoch + 1}): Total next inactive balance after`,
+      `elapseEpoch(${currentEpoch} -> ${
+        currentEpoch + 1
+      }): Total next inactive balance after`,
     );
   }
 
-  async expectStakerDebt(expectedDebtByStaker: Record<string, BigNumberish>): Promise<void> {
+  async expectStakerDebt(
+    expectedDebtByStaker: Record<string, BigNumberish>,
+  ): Promise<void> {
     await Promise.all(
       _.map(expectedDebtByStaker, async (value, address) => {
         expectEq(
@@ -1482,7 +1681,9 @@ export class StakingHelper {
     );
   }
 
-  async expectBorrowerDebt(expectedDebtByBorrower: Record<string, BigNumberish>): Promise<void> {
+  async expectBorrowerDebt(
+    expectedDebtByBorrower: Record<string, BigNumberish>,
+  ): Promise<void> {
     await Promise.all(
       _.map(expectedDebtByBorrower, async (value, address) => {
         expectEq(
@@ -1545,9 +1746,7 @@ export class StakingHelper {
   }
 }
 
-function asAddress(
-  account: string | SignerWithAddress,
-): string {
+function asAddress(account: string | SignerWithAddress): string {
   if (typeof account == 'string') {
     return account;
   }
@@ -1593,5 +1792,8 @@ function expectEq(a: BigNumberish, b: BigNumberish, message?: string): void {
 }
 
 function expectGte(a: BigNumberish, b: BigNumberish, message?: string): void {
-  expect(BigNumber.from(a).gte(b), `${message || ''}: ${a} < ${b}`).to.be.true();
+  expect(
+    BigNumber.from(a).gte(b),
+    `${message || ''}: ${a} < ${b}`,
+  ).to.be.true();
 }

@@ -2,23 +2,15 @@
 pragma solidity 0.7.5;
 pragma abicoder v2;
 
-import { SafeMath } from '../dependencies/open-zeppelin/SafeMath.sol';
+import {SafeMath} from '../dependencies/open-zeppelin/SafeMath.sol';
+import {IERC20} from '../interfaces/IERC20.sol';
 
-interface IAxor {
-  function balanceOf(
-    address account
-  )
-    external
-    view
-    returns (uint256);
-
-  function transfer(
-    address destination,
-    uint256 rawAmount
-  )
-    external
-    returns (bool);
-}
+/**
+ * @title TreasuryVester
+ * @author Axor
+ *
+ * @notice Holds an ERC-20 token. Allows the owner to transfer the token or set allowances.
+ */
 
 contract TreasuryVester {
   using SafeMath for uint256;
@@ -41,18 +33,9 @@ contract TreasuryVester {
     uint256 vestingCliff_,
     uint256 vestingEnd_
   ) {
-    require(
-      vestingBegin_ >= block.timestamp,
-      'VESTING_BEGIN_TOO_EARLY'
-    );
-    require(
-      vestingCliff_ >= vestingBegin_,
-      'VESTING_CLIFF_BEFORE_BEGIN'
-    );
-    require(
-      vestingEnd_ > vestingCliff_,
-      'VESTING_END_BEFORE_CLIFF'
-    );
+    require(vestingBegin_ >= block.timestamp, 'VESTING_BEGIN_TOO_EARLY');
+    require(vestingCliff_ >= vestingBegin_, 'VESTING_CLIFF_BEFORE_BEGIN');
+    require(vestingEnd_ > vestingCliff_, 'VESTING_END_BEFORE_CLIFF');
 
     axor = axor_;
     recipient = recipient_;
@@ -65,32 +48,22 @@ contract TreasuryVester {
     lastUpdate = vestingBegin;
   }
 
-  function setRecipient(
-    address recipient_
-  )
-    public
-  {
-    require(
-      msg.sender == recipient,
-      'SET_RECIPIENT_UNAUTHORIZED'
-    );
+  function setRecipient(address recipient_) public {
+    require(msg.sender == recipient, 'SET_RECIPIENT_UNAUTHORIZED');
     recipient = recipient_;
   }
 
-  function claim()
-    public
-  {
-    require(
-      block.timestamp >= vestingCliff,
-      'CLAIM_TOO_EARLY'
-    );
+  function claim() public {
+    require(block.timestamp >= vestingCliff, 'CLAIM_TOO_EARLY');
     uint256 amount;
     if (block.timestamp >= vestingEnd) {
-      amount = IAxor(axor).balanceOf(address(this));
+      amount = IERC20(axor).balanceOf(address(this));
     } else {
-      amount = vestingAmount.mul(block.timestamp - lastUpdate).div(vestingEnd - vestingBegin);
+      amount = vestingAmount.mul(block.timestamp - lastUpdate).div(
+        vestingEnd - vestingBegin
+      );
       lastUpdate = block.timestamp;
     }
-    IAxor(axor).transfer(recipient, amount);
+    IERC20(axor).transfer(recipient, amount);
   }
 }

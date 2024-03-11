@@ -13,20 +13,13 @@ function init(ctx: TestContext) {
   [staker] = ctx.users;
 }
 
-describeContractHardhatRevertBeforeEach('SafetyModuleV2 initial state', init, (ctx: TestContext) => {
+describeContractHardhatRevertBeforeEach('SafetyModule initial state', init, (ctx: TestContext) => {
 
   describe('Proxy admin', () => {
 
     it('The admin of the proxy is set to the proxy admin', async () => {
       const proxyAdminAddress = await ctx.safetyModuleProxyAdmin.getProxyAdmin(ctx.safetyModule.address);
       expect(proxyAdminAddress).to.equal(ctx.safetyModuleProxyAdmin.address);
-    });
-
-    it('The implementation is set to the V2 implementation', async () => {
-      const implementationAddress = await ctx.safetyModuleProxyAdmin.getProxyImplementation(
-        ctx.safetyModule.address,
-      );
-      expect(implementationAddress).to.equal(ctx.safetyModuleNewImpl.address);
     });
   });
 
@@ -44,10 +37,10 @@ describeContractHardhatRevertBeforeEach('SafetyModuleV2 initial state', init, (c
 
   it('Distribution start and end are set during contract creation', async () => {
     expect(await ctx.safetyModule.DISTRIBUTION_START()).to.equal(
-      ctx.config.SM_RECOVERY_DISTRIBUTION_START,
+      ctx.config.SM_DISTRIBUTION_START,
     );
     expect(await ctx.safetyModule.DISTRIBUTION_END()).to.equal(
-      ctx.config.SM_RECOVERY_DISTRIBUTION_END,
+      ctx.config.SM_DISTRIBUTION_END,
     );
   });
 

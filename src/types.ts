@@ -1,27 +1,20 @@
 import BNJS from 'bignumber.js';
-import {
-  BigNumberish,
-  BytesLike,
-} from 'ethers';
+import { BigNumberish, BytesLike } from 'ethers';
 
 import { deployMocks } from './migrations/helpers/deploy-mocks';
 import { deployPhase1 } from './migrations/phase-1';
 import { deployPhase2 } from './migrations/phase-2';
-import { deploySafetyModuleRecovery } from './migrations/safety-module-recovery';
-import { deployUpgradeGovernanceStrategyV2Contracts } from './migrations/deploy-upgrade-governance-strategy-v2-contracts';
 export * from './deploy-config/types';
 
 export type UnwrapPromise<T> = T extends Promise<infer U> ? U : never;
 
 export type BigNumberable = BNJS | string | number;
 
-export type AllDeployedContracts = (
-  UnwrapPromise<ReturnType<typeof deployPhase1>> &
+export type AllDeployedContracts = UnwrapPromise<
+  ReturnType<typeof deployPhase1>
+> &
   UnwrapPromise<ReturnType<typeof deployPhase2>> &
-  UnwrapPromise<ReturnType<typeof deploySafetyModuleRecovery>> &
-  UnwrapPromise<ReturnType<typeof deployUpgradeGovernanceStrategyV2Contracts>> &
-  UnwrapPromise<ReturnType<typeof deployMocks>>
-);
+  UnwrapPromise<ReturnType<typeof deployMocks>>;
 
 export type MainnetDeployedContracts = AllDeployedContracts;
 
@@ -45,6 +38,7 @@ export enum NetworkName {
   ropsten = 'ropsten',
   kovan = 'kovan',
   sepolia = 'sepolia',
+  goerli = 'goerli',
   hardhat = 'hardhat',
 }
 

@@ -8,7 +8,7 @@ import {
 const configSchema = {
   DEPLOYMENT_LOGS: parseBoolean({ default: true }),
   FORK_MAINNET: parseBoolean({ default: false }),
-  FORK_BLOCK_NUMBER: parseInteger({ default: 18536646	}),
+  FORK_BLOCK_NUMBER: parseInteger({ default: 18536646 }),
   HARDHAT_SIMULATE_AFFECTED_STAKERS: parseInteger({ default: 3 }),
   OVERRIDE_DEPLOYER_ADDRESS: parseString({ default: null }),
   PROMPT_AUTO_YES: parseBoolean({ default: false }),
@@ -20,27 +20,39 @@ const configSchema = {
   TEST_SM_RECOVERY_WITH_PROPOSAL: parseBoolean({ default: false }),
   TEST_SP_FIX_WITH_PROPOSAL: parseBoolean({ default: false }),
   FUND_GRANTS_PROGRAM_PROPOSAL_ID: parseInteger({ default: null }),
-  TEST_FUND_GRANTS_PROGRAM_WITH_PROPOSAL: parseBoolean({ default: false }),
+  TEST_FUND_GRANTS_PROGRAM_WITH_PROPOSAL: parseBoolean({ default: true }),
   FUND_GRANTS_PROGRAM_v1_5_PROPOSAL_ID: parseInteger({ default: null }),
-  TEST_FUND_GRANTS_PROGRAM_v1_5_WITH_PROPOSAL: parseBoolean({ default: false }),
+  TEST_FUND_GRANTS_PROGRAM_v1_5_WITH_PROPOSAL: parseBoolean({ default: true }),
   WIND_DOWN_BORROWING_POOL_PROPOSAL_ID: parseInteger({ default: null }),
-  WIND_DOWN_BORROWING_POOL_WITH_PROPOSAL: parseBoolean({ default: false }),
-  UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_PROPOSAL_ID: parseInteger({ default: null }),
-  TEST_UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_WITH_PROPOSAL: parseBoolean({ default: false }),
+  WIND_DOWN_BORROWING_POOL_WITH_PROPOSAL: parseBoolean({ default: true }),
+  UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_PROPOSAL_ID: parseInteger({
+    default: null,
+  }),
+  TEST_UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_WITH_PROPOSAL: parseBoolean(
+    { default: true },
+  ),
   WIND_DOWN_SAFETY_MODULE_PROPOSAL_ID: parseInteger({ default: null }),
   TEST_WIND_DOWN_SAFETY_MODULE_WITH_PROPOSAL: parseBoolean({ default: true }),
   FUND_OPS_TRUST_PROPOSAL_ID: parseInteger({ default: null }),
   TEST_FUND_OPS_TRUST_WITH_PROPOSAL: parseBoolean({ default: true }),
-  UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_v2_PROPOSAL_ID: parseInteger({ default: null }),
-  TEST_UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_v2_WITH_PROPOSAL: parseBoolean({ default: true }),
+  UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_v2_PROPOSAL_ID: parseInteger({
+    default: null,
+  }),
+  TEST_UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_v2_WITH_PROPOSAL:
+    parseBoolean({ default: true }),
   V3_DATA_AVAILABILITY_PROPOSAL_ID: parseInteger({ default: null }),
   TEST_V3_DATA_AVAILABILITY_WITH_PROPOSAL: parseBoolean({ default: false }),
   FUND_OPS_TRUST_v2_PROPOSAL_ID: parseInteger({ default: null }),
   TEST_FUND_OPS_TRUST_v2_WITH_PROPOSAL: parseBoolean({ default: true }),
-  UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_DIP24_PROPOSAL_ID: parseInteger( { default: null }),
-  TEST_UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_DIP24_WITH_PROPOSAL: parseBoolean({ default: true }),
+  UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_DIP24_PROPOSAL_ID: parseInteger({
+    default: null,
+  }),
+  TEST_UPDATE_MERKLE_DISTRIBUTOR_REWARDS_PARAMETERS_DIP24_WITH_PROPOSAL:
+    parseBoolean({ default: true }),
   UPGRADE_GOVERNANCE_STRATEGY_PROPOSAL_ID: parseInteger({ default: null }),
-  TEST_UPGRADE_GOVERNANCE_STRATEGY_WITH_PROPOSAL: parseBoolean({ default: true }),
+  TEST_UPGRADE_GOVERNANCE_STRATEGY_WITH_PROPOSAL: parseBoolean({
+    default: true,
+  }),
 };
 
 const config = parseSchema(configSchema);

@@ -3,11 +3,9 @@ pragma solidity 0.7.5;
 pragma abicoder v2;
 
 import { IERC20 } from '../interfaces/IERC20.sol';
-import { SafetyModuleV2 } from '../safety/v2/SafetyModuleV2.sol';
+import { SafetyModuleV1 } from '../safety/v1/SafetyModuleV1.sol';
 
-contract MockSafetyModuleSubclass is
-  SafetyModuleV2
-{
+contract MockSafetyModuleSubclass is SafetyModuleV1 {
   constructor(
     IERC20 stakedToken,
     IERC20 rewardsToken,
@@ -15,7 +13,7 @@ contract MockSafetyModuleSubclass is
     uint256 distributionStart,
     uint256 distributionEnd
   )
-    SafetyModuleV2(
+    SafetyModuleV1(
       stakedToken,
       rewardsToken,
       rewardsTreasury,

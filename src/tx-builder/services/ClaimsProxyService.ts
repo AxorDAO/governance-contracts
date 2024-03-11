@@ -2,13 +2,8 @@ import { BigNumber } from '@ethersproject/bignumber';
 import BNJS from 'bignumber.js';
 import { formatEther } from 'ethers/lib/utils';
 
-import {
-  ClaimsProxy__factory,
-  AxorToken__factory,
-} from '../../../types';
-import {
-  ClaimsProxy,
-} from '../../../types/ClaimsProxy';
+import { ClaimsProxy__factory, AxorToken__factory } from '../../../types';
+import { ClaimsProxy } from '../../../types/ClaimsProxy';
 import { AxorToken } from '../../../types/AxorToken';
 import {
   claimsProxyAddresses,
@@ -25,7 +20,11 @@ import {
   tClaimsProxyAddresses,
 } from '../types';
 import { MerkleProof } from '../types/GovernanceReturnTypes';
-import { tTokenAddresses, tTreasuryAddresses, tStringDecimalUnits } from '../types/index';
+import {
+  tTokenAddresses,
+  tTreasuryAddresses,
+  tStringDecimalUnits,
+} from '../types/index';
 import { StakingValidator } from '../validators/methodValidators';
 import BaseService from './BaseService';
 import LiquidityModule from './LiquidityModule';
@@ -33,7 +32,6 @@ import MerkleDistributor from './MerkleDistributor';
 import SafetyModule from './SafetyModule';
 
 export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
-
   readonly claimsProxyAddress: string;
   readonly tokenAddress: tEthereumAddress;
   readonly treasuryAddresses: tTreasuryAddresses;
@@ -60,19 +58,23 @@ export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
     const isHardhatNetwork: boolean = network === Network.hardhat;
     if (
       isHardhatNetwork &&
-      (
-        !hardhatClaimsProxyAddresses ||
+      (!hardhatClaimsProxyAddresses ||
         !hardhatTokenAddresses ||
-        !hardhatTreasuryAddresses
-      )
+        !hardhatTreasuryAddresses)
     ) {
-      throw new Error('Must specify token and treasury addresses when on hardhat network');
+      throw new Error(
+        'Must specify token and treasury addresses when on hardhat network',
+      );
     }
 
-    const tokenAddresses: tTokenAddresses = isHardhatNetwork ? hardhatTokenAddresses! : axorTokenAddresses[network];
+    const tokenAddresses: tTokenAddresses = isHardhatNetwork
+      ? hardhatTokenAddresses!
+      : axorTokenAddresses[network];
     this.tokenAddress = tokenAddresses.TOKEN_ADDRESS;
 
-    this.treasuryAddresses = isHardhatNetwork ? hardhatTreasuryAddresses! : axorTreasuryAddresses[network];
+    this.treasuryAddresses = isHardhatNetwork
+      ? hardhatTreasuryAddresses!
+      : axorTreasuryAddresses[network];
 
     const addresses: tClaimsProxyAddresses = isHardhatNetwork
       ? hardhatClaimsProxyAddresses!
@@ -89,37 +91,40 @@ export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
     user: tEthereumAddress,
   ): Promise<EthereumTransactionTypeExtended[]> {
     const { provider }: Configuration = this.config;
-    const axorToken: AxorToken = AxorToken__factory.connect(this.tokenAddress, provider) as AxorToken;
+    const axorToken: AxorToken = AxorToken__factory.connect(
+      this.tokenAddress,
+      provider,
+    ) as AxorToken;
 
     const [
       safetyModuleRewards,
       liquidityStakingRewards,
       merkleProof,
       rewardsTreasuryBalance,
-    ]: [
-      tStringDecimalUnits,
-      tStringDecimalUnits,
-      MerkleProof,
-      BigNumber,
-    ] = await Promise.all([
-      this.safetyModule.getUserUnclaimedRewards(user),
-      this.liquidityModule.getUserUnclaimedRewards(user),
-      this.merkleDistributor.getActiveRootMerkleProof(user),
-      axorToken.balanceOf(this.treasuryAddresses.REWARDS_TREASURY_ADDRESS),
-    ]);
+    ]: [tStringDecimalUnits, tStringDecimalUnits, MerkleProof, BigNumber] =
+      await Promise.all([
+        this.safetyModule.getUserUnclaimedRewards(user),
+        this.liquidityModule.getUserUnclaimedRewards(user),
+        this.merkleDistributor.getActiveRootMerkleProof(user),
+        axorToken.balanceOf(this.treasuryAddresses.REWARDS_TREASURY_ADDRESS),
+      ]);
 
     const hasSafetyModuleRewards = !new BNJS(safetyModuleRewards).isZero();
-    const hasLiquidityStakingRewards = !new BNJS(liquidityStakingRewards).isZero();
+    const hasLiquidityStakingRewards = !new BNJS(
+      liquidityStakingRewards,
+    ).isZero();
 
-    const userUnclaimedRewards: BigNumber = await this.contract.callStatic.claimRewards(
-      true,
-      true,
-      merkleProof.cumulativeAmount,
-      merkleProof.merkleProof,
-      true,
-      { from: user },
-    );
-    const vestFromTreasuryVester: boolean = rewardsTreasuryBalance.lt(userUnclaimedRewards);
+    const userUnclaimedRewards: BigNumber =
+      await this.contract.callStatic.claimRewards(
+        true,
+        true,
+        merkleProof.cumulativeAmount,
+        merkleProof.merkleProof,
+        true,
+        { from: user },
+      );
+    const vestFromTreasuryVester: boolean =
+      rewardsTreasuryBalance.lt(userUnclaimedRewards);
 
     const txCallback: () => Promise<transactionType> = this.generateTxCallback({
       rawTxMethod: () =>
@@ -143,18 +148,22 @@ export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
     ];
   }
 
-  public async getUserUnclaimedRewards(user: tEthereumAddress): Promise<tStringDecimalUnits> {
-    const merkleProof: MerkleProof = await this.merkleDistributor.getActiveRootMerkleProof(user);
+  public async getUserUnclaimedRewards(
+    user: tEthereumAddress,
+  ): Promise<tStringDecimalUnits> {
+    const merkleProof: MerkleProof =
+      await this.merkleDistributor.getActiveRootMerkleProof(user);
 
-    const userUnclaimedRewards: BigNumber = await this.contract.callStatic.claimRewards(
-      true,
-      true,
-      merkleProof.cumulativeAmount,
-      merkleProof.merkleProof,
-      true,
-      { from: user },
-    );
-    
+    const userUnclaimedRewards: BigNumber =
+      await this.contract.callStatic.claimRewards(
+        true,
+        true,
+        merkleProof.cumulativeAmount,
+        merkleProof.merkleProof,
+        true,
+        { from: user },
+      );
+
     return formatEther(userUnclaimedRewards);
   }
 }

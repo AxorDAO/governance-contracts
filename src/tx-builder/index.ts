@@ -2,13 +2,13 @@ import { Client, createClient } from '@urql/core';
 import { providers } from 'ethers';
 
 import {
-  ROPSTEN_SUBGRAPH_URL,
   MAINNET_SUBGRAPH_URL,
+  GOERLI_SUBGRAPH_URL,
 } from './config';
-import ClaimsProxyService from './services/ClaimsProxyService';
 import AxorGovernance from './services/AxorGovernance';
 import AxorGovernanceService from './services/AxorGovernance';
 import AxorTokenService from './services/AxorToken';
+import ClaimsProxyService from './services/ClaimsProxyService';
 import GovernanceDelegationTokenService from './services/GovernanceDelegationTokenService';
 import LiquidityModuleService from './services/LiquidityModule';
 import MerkleDistributorService from './services/MerkleDistributor';
@@ -31,7 +31,6 @@ import { tMulticallAddresses } from './types/index';
 import { getGovernanceTokens } from './utils/helpers';
 
 export default class TxBuilder extends BaseTxBuilder {
-
   public axorGovernanceService: AxorGovernance;
 
   public axorTokenService: AxorTokenService;
@@ -46,69 +45,67 @@ export default class TxBuilder extends BaseTxBuilder {
 
   public claimsProxyService: ClaimsProxyService;
 
-  constructor(
-    {
-      network,
-      hardhatGovernanceAddresses = {
-        AXOR_GOVERNANCE: '',
-        AXOR_GOVERNANCE_EXECUTOR_SHORT: '',
-        AXOR_GOVERNANCE_EXECUTOR_LONG: '',
-        AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER: '',
-        AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE: '',
-        AXOR_GOVERNANCE_STRATEGY: '',
-      },
-      hardhatTokenAddresses = {
-        TOKEN_ADDRESS: '',
-      },
-      hardhatTreasuryAddresses = {
-        REWARDS_TREASURY_ADDRESS: '',
-        REWARDS_TREASURY_VESTER_ADDRESS: '',
-        COMMUNITY_TREASURY_ADDRESS: '',
-        COMMUNITY_TREASURY_VESTER_ADDRESS: '',
-      },
-      hardhatSafetyModuleAddresses = {
-        SAFETY_MODULE_ADDRESS: '',
-      },
-      hardhatLiquidityModuleAddresses = {
-        LIQUIDITY_MODULE_ADDRESS: '',
-      },
-      hardhatMerkleDistributorAddresses = {
-        MERKLE_DISTRIBUTOR_ADDRESS: '',
-      },
-      hardhatClaimsProxyAddresses = {
-        CLAIMS_PROXY_ADDRESS: '',
-      },
-      hardhatMulticallAddresses = {
-        MULTICALL_ADDRESS: '',
-      },
-      injectedProvider,
-      defaultProviderKeys,
-    }: {
-      network: Network,
-      hardhatGovernanceAddresses?: tDistinctGovernanceAddresses,
-      hardhatTokenAddresses?: tTokenAddresses,
-      hardhatTreasuryAddresses?: tTreasuryAddresses,
-      hardhatSafetyModuleAddresses?: tSafetyModuleAddresses,
-      hardhatLiquidityModuleAddresses?: tLiquidityModuleAddresses,
-      hardhatMerkleDistributorAddresses?: tMerkleDistributorAddresses,
-      hardhatClaimsProxyAddresses?: tClaimsProxyAddresses,
-      hardhatMulticallAddresses?: tMulticallAddresses,
-      injectedProvider?:
+  constructor({
+    network,
+    hardhatGovernanceAddresses = {
+      AXOR_GOVERNANCE: '',
+      AXOR_GOVERNANCE_EXECUTOR_SHORT: '',
+      AXOR_GOVERNANCE_EXECUTOR_LONG: '',
+      AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER: '',
+      AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE: '',
+      AXOR_GOVERNANCE_STRATEGY: '',
+    },
+    hardhatTokenAddresses = {
+      TOKEN_ADDRESS: '',
+    },
+    hardhatTreasuryAddresses = {
+      REWARDS_TREASURY_ADDRESS: '',
+      REWARDS_TREASURY_VESTER_ADDRESS: '',
+      COMMUNITY_TREASURY_ADDRESS: '',
+      COMMUNITY_TREASURY_VESTER_ADDRESS: '',
+    },
+    hardhatSafetyModuleAddresses = {
+      SAFETY_MODULE_ADDRESS: '',
+    },
+    hardhatLiquidityModuleAddresses = {
+      LIQUIDITY_MODULE_ADDRESS: '',
+    },
+    hardhatMerkleDistributorAddresses = {
+      MERKLE_DISTRIBUTOR_ADDRESS: '',
+    },
+    hardhatClaimsProxyAddresses = {
+      CLAIMS_PROXY_ADDRESS: '',
+    },
+    hardhatMulticallAddresses = {
+      MULTICALL_ADDRESS: '',
+    },
+    injectedProvider,
+    defaultProviderKeys,
+  }: {
+    network: Network;
+    hardhatGovernanceAddresses?: tDistinctGovernanceAddresses;
+    hardhatTokenAddresses?: tTokenAddresses;
+    hardhatTreasuryAddresses?: tTreasuryAddresses;
+    hardhatSafetyModuleAddresses?: tSafetyModuleAddresses;
+    hardhatLiquidityModuleAddresses?: tLiquidityModuleAddresses;
+    hardhatMerkleDistributorAddresses?: tMerkleDistributorAddresses;
+    hardhatClaimsProxyAddresses?: tClaimsProxyAddresses;
+    hardhatMulticallAddresses?: tMulticallAddresses;
+    injectedProvider?:
       | providers.ExternalProvider
       | providers.Web3Provider
       | providers.JsonRpcProvider
       | string
-      | undefined,
-      defaultProviderKeys?: DefaultProviderKeys
-    },
-  ) {
+      | undefined;
+    defaultProviderKeys?: DefaultProviderKeys;
+  }) {
     super(network, injectedProvider, defaultProviderKeys);
 
     let subgraphClient: Client;
     switch (network) {
-      case Network.ropsten:
+      case Network.goerli:
         subgraphClient = createClient({
-          url: ROPSTEN_SUBGRAPH_URL,
+          url: GOERLI_SUBGRAPH_URL,
         });
         break;
       case Network.main:
@@ -117,10 +114,14 @@ export default class TxBuilder extends BaseTxBuilder {
         });
         break;
       case Network.hardhat:
-        console.log('No subgraph functionality on hardhat network (all subgraph calls should be mocked).');
+        console.log(
+          'No subgraph functionality on hardhat network (all subgraph calls should be mocked).',
+        );
         subgraphClient = {
           query: () => {
-            throw new Error('All subgraph queries must be mocked on hardhat network');
+            throw new Error(
+              'All subgraph queries must be mocked on hardhat network',
+            );
           },
         } as any as Client;
         break;
@@ -129,32 +130,39 @@ export default class TxBuilder extends BaseTxBuilder {
       }
     }
 
-    this.governanceDelegationTokenService = new GovernanceDelegationTokenService(
-      this.configuration,
-    );
+    this.governanceDelegationTokenService =
+      new GovernanceDelegationTokenService(this.configuration);
     this.axorGovernanceService = new AxorGovernanceService(
       this.configuration,
       this.erc20Service,
       this.governanceDelegationTokenService,
       subgraphClient,
-      getGovernanceTokens(network, hardhatTokenAddresses, hardhatSafetyModuleAddresses),
+      getGovernanceTokens(
+        network,
+        hardhatTokenAddresses,
+        hardhatSafetyModuleAddresses,
+      ),
       hardhatGovernanceAddresses,
     );
+
     this.safetyModuleService = new SafetyModuleService(
       this.configuration,
       this.erc20Service,
       hardhatSafetyModuleAddresses,
     );
+
     this.liquidityModuleService = new LiquidityModuleService(
       this.configuration,
       this.erc20Service,
       hardhatLiquidityModuleAddresses,
     );
+
     this.merkleDistributorService = new MerkleDistributorService(
       this.configuration,
       this.erc20Service,
       hardhatMerkleDistributorAddresses,
     );
+
     this.claimsProxyService = new ClaimsProxyService(
       this.configuration,
       this.safetyModuleService,
@@ -164,6 +172,7 @@ export default class TxBuilder extends BaseTxBuilder {
       hardhatTokenAddresses,
       hardhatTreasuryAddresses,
     );
+
     this.axorTokenService = new AxorTokenService(
       this.configuration,
       this.erc20Service,

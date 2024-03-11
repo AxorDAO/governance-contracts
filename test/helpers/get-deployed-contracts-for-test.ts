@@ -4,7 +4,6 @@ import { AllDeployedContracts } from '../../src/types';
 import {
   configureForTest,
   deployContractsForTest,
-  executeSafetyModuleRecoveryProposalsForTest,
   executeGrantsProgramProposalForTest,
   executeGrantsProgramv15ProposalForTest,
   executeWindDownBorrowingPoolProposalForTest,
@@ -14,7 +13,6 @@ import {
   executeUpdateMerkleDistributorRewardsParametersV2ProposalForTest,
   executeOpsTrustV2ProposalForTest,
   executeUpdateMerkleDistributorRewardsParametersDIP24ProposalForTest,
-  executeUpgradeGovernanceStrategyV2ProposalForTest,
 } from '../migrations/deploy-contracts-for-test';
 
 let globalDeployedContracts: AllDeployedContracts;
@@ -57,7 +55,6 @@ async function getDeployedContractsForTest(): Promise<AllDeployedContracts> {
     //
     // The proposals will be executed when running on a local test network,
     // but will not be executed when running on a mainnet fork.
-    await executeSafetyModuleRecoveryProposalsForTest(deployedContracts);
     await executeGrantsProgramProposalForTest(deployedContracts);
     await executeGrantsProgramv15ProposalForTest(deployedContracts);
     await executeWindDownBorrowingPoolProposalForTest(deployedContracts);
@@ -67,7 +64,6 @@ async function getDeployedContractsForTest(): Promise<AllDeployedContracts> {
     await executeUpdateMerkleDistributorRewardsParametersV2ProposalForTest(deployedContracts);
     await executeOpsTrustV2ProposalForTest(deployedContracts);
     await executeUpdateMerkleDistributorRewardsParametersDIP24ProposalForTest(deployedContracts);
-    await executeUpgradeGovernanceStrategyV2ProposalForTest(deployedContracts);
   }
 
   await configureForTest(deployedContracts);

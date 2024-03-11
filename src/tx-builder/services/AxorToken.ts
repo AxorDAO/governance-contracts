@@ -40,9 +40,7 @@ import LiquidityModule from './LiquidityModule';
 import MerkleDistributor from './MerkleDistributor';
 import SafetyModule from './SafetyModule';
 
-
 export default class AxorTokenService extends BaseService<AxorToken> {
-
   readonly erc20Service: ERC20Service;
   readonly tokenAddress: tEthereumAddress;
   readonly treasuryAddresses: tTreasuryAddresses;
@@ -68,18 +66,22 @@ export default class AxorTokenService extends BaseService<AxorToken> {
     const isHardhatNetwork: boolean = network === Network.hardhat;
     if (
       isHardhatNetwork &&
-      (
-        !hardhatTokenAddresses ||
+      (!hardhatTokenAddresses ||
         !hardhatTreasuryAddresses ||
-        !hardhatMulticallAddress
-      )
+        !hardhatMulticallAddress)
     ) {
-      throw new Error('Must specify token, treasury, and multicall addresses when on hardhat network');
+      throw new Error(
+        'Must specify token, treasury, and multicall addresses when on hardhat network',
+      );
     }
-    const tokenAddresses: tTokenAddresses = isHardhatNetwork ? hardhatTokenAddresses! : axorTokenAddresses[network];
+    const tokenAddresses: tTokenAddresses = isHardhatNetwork
+      ? hardhatTokenAddresses!
+      : axorTokenAddresses[network];
     this.tokenAddress = tokenAddresses.TOKEN_ADDRESS;
 
-    this.treasuryAddresses = isHardhatNetwork ? hardhatTreasuryAddresses! : axorTreasuryAddresses[network];
+    this.treasuryAddresses = isHardhatNetwork
+      ? hardhatTreasuryAddresses!
+      : axorTreasuryAddresses[network];
 
     this.safetyModule = safetyModule;
 
@@ -114,7 +116,9 @@ export default class AxorTokenService extends BaseService<AxorToken> {
     return this.erc20Service.totalSupply(this.tokenAddress);
   };
 
-  public balanceOf = async (user: tEthereumAddress): Promise<tStringDecimalUnits> => {
+  public balanceOf = async (
+    user: tEthereumAddress,
+  ): Promise<tStringDecimalUnits> => {
     return this.erc20Service.balanceOf(this.tokenAddress, user);
   };
 
@@ -170,10 +174,7 @@ export default class AxorTokenService extends BaseService<AxorToken> {
       },
     ];
 
-    const [
-      multiRes,
-      rootUpdatedMetadata,
-    ]: [
+    const [multiRes, rootUpdatedMetadata]: [
       ContractCallResults,
       RootUpdatedMetadata,
     ] = await Promise.all([
@@ -182,15 +183,16 @@ export default class AxorTokenService extends BaseService<AxorToken> {
     ]);
 
     const tokenReturnContext = multiRes.results.token.callsReturnContext;
-    const multicallReturnContext = multiRes.results.multicall.callsReturnContext;
+    const multicallReturnContext =
+      multiRes.results.multicall.callsReturnContext;
 
     const transferRestriction: BigNumber = BigNumber.from(
-      tokenReturnContext.find(c => c.reference === 'transferRestriction')
+      tokenReturnContext.find((c) => c.reference === 'transferRestriction')
         ?.returnValues[0].hex,
     );
 
     const currentTimestamp: BigNumber = BigNumber.from(
-      multicallReturnContext.find(c => c.reference === 'timeLatest')
+      multicallReturnContext.find((c) => c.reference === 'timeLatest')
         ?.returnValues[0].hex,
     );
 
@@ -199,20 +201,24 @@ export default class AxorTokenService extends BaseService<AxorToken> {
       return '0.0';
     }
 
-    const safetyModuleReturnContext = multiRes.results.safetyModule.callsReturnContext;
-    const liquidityModuleReturnContext = multiRes.results.liquidityModule.callsReturnContext;
+    const safetyModuleReturnContext =
+      multiRes.results.safetyModule.callsReturnContext;
+    const liquidityModuleReturnContext =
+      multiRes.results.liquidityModule.callsReturnContext;
 
     const safetyModuleRewardsPerSecond: tStringDecimalUnits = formatEther(
       BigNumber.from(
-        safetyModuleReturnContext.find(c => c.reference === 'rewardsPerSecond')
-          ?.returnValues[0].hex,
+        safetyModuleReturnContext.find(
+          (c) => c.reference === 'rewardsPerSecond',
+        )?.returnValues[0].hex,
       ),
     );
 
     const liquidityModuleRewardsPerSecond: tStringDecimalUnits = formatEther(
       BigNumber.from(
-        liquidityModuleReturnContext.find(c => c.reference === 'rewardsPerSecond')
-          ?.returnValues[0].hex,
+        liquidityModuleReturnContext.find(
+          (c) => c.reference === 'rewardsPerSecond',
+        )?.returnValues[0].hex,
       ),
     );
 
@@ -223,30 +229,46 @@ export default class AxorTokenService extends BaseService<AxorToken> {
     );
 
     let dailyMerkleDistributorRewards: BNJS = new BNJS(0);
-    const secondsSinceClaimableMerkleRewards: BigNumber = currentTimestamp.sub(lastClaimableMerkleRewardsTimestamp);
-    if (rootUpdatedMetadata.numRootUpdates > 0 && secondsSinceClaimableMerkleRewards.lte(ONE_DAY_SECONDS.toNumber())) {
-      dailyMerkleDistributorRewards = new BNJS(MERKLE_DISTRIBUTOR_REWARDS_PER_EPOCH);
+    const secondsSinceClaimableMerkleRewards: BigNumber = currentTimestamp.sub(
+      lastClaimableMerkleRewardsTimestamp,
+    );
+    if (
+      rootUpdatedMetadata.numRootUpdates > 0 &&
+      secondsSinceClaimableMerkleRewards.lte(ONE_DAY_SECONDS.toNumber())
+    ) {
+      dailyMerkleDistributorRewards = new BNJS(
+        MERKLE_DISTRIBUTOR_REWARDS_PER_EPOCH,
+      );
 
       if (rootUpdatedMetadata.numRootUpdates === 1) {
         // The first root update includes retroactive rewards
-        dailyMerkleDistributorRewards = dailyMerkleDistributorRewards.plus(RETROACTIVE_MINING_REWARDS);
+        dailyMerkleDistributorRewards = dailyMerkleDistributorRewards.plus(
+          RETROACTIVE_MINING_REWARDS,
+        );
       }
     }
 
-    const dailySafetyRewards: BNJS = new BNJS(safetyModuleRewardsPerSecond)
-      .multipliedBy(ONE_DAY_SECONDS.toNumber());
+    const dailySafetyRewards: BNJS = new BNJS(
+      safetyModuleRewardsPerSecond,
+    ).multipliedBy(ONE_DAY_SECONDS.toNumber());
 
-    let dailyLiquidityRewards: BNJS = new BNJS(liquidityModuleRewardsPerSecond)
-      .multipliedBy(ONE_DAY_SECONDS.toNumber());
+    let dailyLiquidityRewards: BNJS = new BNJS(
+      liquidityModuleRewardsPerSecond,
+    ).multipliedBy(ONE_DAY_SECONDS.toNumber());
 
-    const secondsSinceTransferRestrictionEnd: BigNumber = currentTimestamp.sub(transferRestriction);
+    const secondsSinceTransferRestrictionEnd: BigNumber =
+      currentTimestamp.sub(transferRestriction);
     if (secondsSinceTransferRestrictionEnd.lte(ONE_DAY_SECONDS.toNumber())) {
       // within one day of transfer restriction end, previous 36 days of liquidity module rewards
       // become liquid
-      const preTransferRestrictionLiquidityStakingRewards = new BNJS(liquidityModuleRewardsPerSecond)
+      const preTransferRestrictionLiquidityStakingRewards = new BNJS(
+        liquidityModuleRewardsPerSecond,
+      )
         .multipliedBy(ONE_DAY_SECONDS.toNumber())
         .multipliedBy(36);
-      dailyLiquidityRewards = dailyLiquidityRewards.plus(preTransferRestrictionLiquidityStakingRewards);
+      dailyLiquidityRewards = dailyLiquidityRewards.plus(
+        preTransferRestrictionLiquidityStakingRewards,
+      );
     }
 
     const distributedToday: tStringDecimalUnits = dailySafetyRewards
@@ -282,17 +304,23 @@ export default class AxorTokenService extends BaseService<AxorToken> {
           {
             reference: 'rewardsTreasuryVesterBalance',
             methodName: 'balanceOf',
-            methodParameters: [this.treasuryAddresses.REWARDS_TREASURY_VESTER_ADDRESS],
+            methodParameters: [
+              this.treasuryAddresses.REWARDS_TREASURY_VESTER_ADDRESS,
+            ],
           },
           {
             reference: 'communityTreasuryBalance',
             methodName: 'balanceOf',
-            methodParameters: [this.treasuryAddresses.COMMUNITY_TREASURY_ADDRESS],
+            methodParameters: [
+              this.treasuryAddresses.COMMUNITY_TREASURY_ADDRESS,
+            ],
           },
           {
             reference: 'communityTreasuryVesterBalance',
             methodName: 'balanceOf',
-            methodParameters: [this.treasuryAddresses.COMMUNITY_TREASURY_VESTER_ADDRESS],
+            methodParameters: [
+              this.treasuryAddresses.COMMUNITY_TREASURY_VESTER_ADDRESS,
+            ],
           },
         ],
       },
@@ -310,43 +338,47 @@ export default class AxorTokenService extends BaseService<AxorToken> {
       },
     ];
 
-    const multiRes: ContractCallResults = await this._multicallData.multicall.call(contractCallContext);
+    const multiRes: ContractCallResults =
+      await this._multicallData.multicall.call(contractCallContext);
 
     const tokenReturnContext = multiRes.results.token.callsReturnContext;
-    const multicallReturnContext = multiRes.results.multicall.callsReturnContext;
+    const multicallReturnContext =
+      multiRes.results.multicall.callsReturnContext;
 
     const transferRestriction: BigNumber = BigNumber.from(
-      tokenReturnContext.find(c => c.reference === 'transferRestriction')
+      tokenReturnContext.find((c) => c.reference === 'transferRestriction')
         ?.returnValues[0].hex,
     );
 
     const totalSupply: BigNumber = BigNumber.from(
-      tokenReturnContext.find(c => c.reference === 'totalSupply')
+      tokenReturnContext.find((c) => c.reference === 'totalSupply')
         ?.returnValues[0].hex,
     );
 
     const rewardsTreasuryBalance: BigNumber = BigNumber.from(
-      tokenReturnContext.find(c => c.reference === 'rewardsTreasuryBalance')
+      tokenReturnContext.find((c) => c.reference === 'rewardsTreasuryBalance')
         ?.returnValues[0].hex,
     );
 
     const rewardsTreasuryVesterBalance: BigNumber = BigNumber.from(
-      tokenReturnContext.find(c => c.reference === 'rewardsTreasuryVesterBalance')
-        ?.returnValues[0].hex,
+      tokenReturnContext.find(
+        (c) => c.reference === 'rewardsTreasuryVesterBalance',
+      )?.returnValues[0].hex,
     );
 
     const communityTreasuryBalance: BigNumber = BigNumber.from(
-      tokenReturnContext.find(c => c.reference === 'communityTreasuryBalance')
+      tokenReturnContext.find((c) => c.reference === 'communityTreasuryBalance')
         ?.returnValues[0].hex,
     );
 
     const communityTreasuryVesterBalance: BigNumber = BigNumber.from(
-      tokenReturnContext.find(c => c.reference === 'communityTreasuryVesterBalance')
-        ?.returnValues[0].hex,
+      tokenReturnContext.find(
+        (c) => c.reference === 'communityTreasuryVesterBalance',
+      )?.returnValues[0].hex,
     );
 
     const currentTimestamp: BigNumber = BigNumber.from(
-      multicallReturnContext.find(c => c.reference === 'timeLatest')
+      multicallReturnContext.find((c) => c.reference === 'timeLatest')
         ?.returnValues[0].hex,
     );
 
