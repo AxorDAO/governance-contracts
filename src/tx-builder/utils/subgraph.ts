@@ -4,7 +4,6 @@ import { formatEther } from 'ethers/lib/utils';
 import { tStringDecimalUnits } from '../types/index';
 
 export type SubgraphUser = {
-  // user id is ethereum address
   id: string;
 };
 
@@ -16,6 +15,12 @@ export type SubgraphProposalVote = {
   userAddress: string;
   votingPower: tStringDecimalUnits;
   support: boolean;
+};
+
+export type RootUpdated = {
+  merkleRoot: string;
+  ipfsCid: string;
+  epoch: string;
 };
 
 export const getSortedProposalVotesQuery = (
@@ -134,4 +139,22 @@ export const getSortedProposalVotes = async (
     topForVotes,
     topAgainstVotes,
   };
+};
+
+export const getRootUpdates = async (client: Client) => {
+  const queryResult = await client
+    .query(
+      `{
+        rootUpdateds {
+          merkleRoot
+          ipfsCid
+          epoch
+        }
+      }`,
+    )
+    .toPromise();
+  if (!queryResult.data) throw new Error('Invalid GraphQL query');
+  const data = queryResult.data.rootUpdateds as Array<RootUpdated>;
+
+  return data.sort((a, b) => Number(a.epoch) - Number(b.epoch));
 };

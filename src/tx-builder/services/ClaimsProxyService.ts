@@ -120,7 +120,7 @@ export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
         true,
         merkleProof.cumulativeAmount,
         merkleProof.merkleProof,
-        true,
+        false,
         { from: user },
       );
     const vestFromTreasuryVester: boolean =
@@ -133,7 +133,7 @@ export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
           hasLiquidityStakingRewards,
           merkleProof.cumulativeAmount,
           merkleProof.merkleProof,
-          vestFromTreasuryVester,
+          false,
         ),
       from: user,
       gasLimit: 600_000,
@@ -151,8 +151,9 @@ export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
   public async getUserUnclaimedRewards(
     user: tEthereumAddress,
   ): Promise<tStringDecimalUnits> {
-    const merkleProof: MerkleProof =
-      await this.merkleDistributor.getActiveRootMerkleProof(user);
+    const merkleProof = await this.merkleDistributor.getActiveRootMerkleProof(
+      user,
+    );
 
     const userUnclaimedRewards: BigNumber =
       await this.contract.callStatic.claimRewards(
@@ -160,7 +161,7 @@ export default class ClaimsProxyService extends BaseService<ClaimsProxy> {
         true,
         merkleProof.cumulativeAmount,
         merkleProof.merkleProof,
-        true,
+        false,
         { from: user },
       );
 

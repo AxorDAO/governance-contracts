@@ -2,22 +2,17 @@
 pragma solidity 0.7.5;
 pragma abicoder v2;
 
-import { IGovernancePowerDelegationERC20 } from '../../interfaces/IGovernancePowerDelegationERC20.sol';
-import { IGovernanceStrategy } from '../../interfaces/IGovernanceStrategy.sol';
-import { GovernancePowerDelegationERC20Mixin } from '../token/GovernancePowerDelegationERC20Mixin.sol';
+import {IGovernancePowerDelegationERC20} from '../../interfaces/IGovernancePowerDelegationERC20.sol';
+import {IGovernanceStrategy} from '../../interfaces/IGovernanceStrategy.sol';
+import {GovernancePowerDelegationERC20Mixin} from '../token/GovernancePowerDelegationERC20Mixin.sol';
+import 'hardhat/console.sol';
 
 interface IAxorToken {
   function _totalSupplySnapshots(
     uint256
-  )
-    external
-    view
-    returns (GovernancePowerDelegationERC20Mixin.Snapshot memory);
+  ) external view returns (GovernancePowerDelegationERC20Mixin.Snapshot memory);
 
-  function _totalSupplySnapshotsCount()
-    external
-    view
-    returns (uint256);
+  function _totalSupplySnapshotsCount() external view returns (uint256);
 }
 
 /**
@@ -44,10 +39,7 @@ contract GovernanceStrategy is IGovernanceStrategy {
 
   // ============ Constructor ============
 
-  constructor(
-    address axorToken,
-    address stakedAxorToken
-  ) {
+  constructor(address axorToken, address stakedAxorToken) {
     AXOR_TOKEN = axorToken;
     STAKED_AXOR_TOKEN = stakedAxorToken;
   }
@@ -64,12 +56,7 @@ contract GovernanceStrategy is IGovernanceStrategy {
    */
   function getTotalPropositionSupplyAt(
     uint256 blockNumber
-  )
-    public
-    view
-    override
-    returns (uint256)
-  {
+  ) public view override returns (uint256) {
     return _getTotalSupplyAt(blockNumber);
   }
 
@@ -83,12 +70,7 @@ contract GovernanceStrategy is IGovernanceStrategy {
    */
   function getTotalVotingSupplyAt(
     uint256 blockNumber
-  )
-    public
-    view
-    override
-    returns (uint256)
-  {
+  ) public view override returns (uint256) {
     return _getTotalSupplyAt(blockNumber);
   }
 
@@ -103,17 +85,13 @@ contract GovernanceStrategy is IGovernanceStrategy {
   function getPropositionPowerAt(
     address user,
     uint256 blockNumber
-  )
-    public
-    view
-    override
-    returns (uint256)
-  {
-    return _getPowerByTypeAt(
-      user,
-      blockNumber,
-      IGovernancePowerDelegationERC20.DelegationType.PROPOSITION_POWER
-    );
+  ) public view override returns (uint256) {
+    return
+      _getPowerByTypeAt(
+        user,
+        blockNumber,
+        IGovernancePowerDelegationERC20.DelegationType.PROPOSITION_POWER
+      );
   }
 
   /**
@@ -127,40 +105,52 @@ contract GovernanceStrategy is IGovernanceStrategy {
   function getVotingPowerAt(
     address user,
     uint256 blockNumber
-  )
-    public
-    view
-    override
-    returns (uint256)
-  {
-    return _getPowerByTypeAt(
+  ) public view override returns (uint256) {
+    return
+      _getPowerByTypeAt(
+        user,
+        blockNumber,
+        IGovernancePowerDelegationERC20.DelegationType.VOTING_POWER
+      );
+  }
+
+  function getVotingPowerNow(address user) public view returns (uint256) {
+    return (IGovernancePowerDelegationERC20(AXOR_TOKEN).getPowerCurrent(
       user,
-      blockNumber,
       IGovernancePowerDelegationERC20.DelegationType.VOTING_POWER
-    );
+    ) +
+      IGovernancePowerDelegationERC20(STAKED_AXOR_TOKEN).getPowerCurrent(
+        user,
+        IGovernancePowerDelegationERC20.DelegationType.VOTING_POWER
+      ));
+  }
+
+  function getPropositionPowerNow(address user) public view returns (uint256) {
+    return (IGovernancePowerDelegationERC20(AXOR_TOKEN).getPowerCurrent(
+      user,
+      IGovernancePowerDelegationERC20.DelegationType.PROPOSITION_POWER
+    ) +
+      IGovernancePowerDelegationERC20(STAKED_AXOR_TOKEN).getPowerCurrent(
+        user,
+        IGovernancePowerDelegationERC20.DelegationType.PROPOSITION_POWER
+      ));
   }
 
   function _getPowerByTypeAt(
     address user,
     uint256 blockNumber,
     IGovernancePowerDelegationERC20.DelegationType powerType
-  )
-    internal
-    view
-    returns (uint256)
-  {
-    return (
-      IGovernancePowerDelegationERC20(AXOR_TOKEN).getPowerAtBlock(
-        user,
-        blockNumber,
-        powerType
-      ) +
+  ) internal view returns (uint256) {
+    return (IGovernancePowerDelegationERC20(AXOR_TOKEN).getPowerAtBlock(
+      user,
+      blockNumber,
+      powerType
+    ) +
       IGovernancePowerDelegationERC20(STAKED_AXOR_TOKEN).getPowerAtBlock(
         user,
         blockNumber,
         powerType
-      )
-    );
+      ));
   }
 
   /**
@@ -172,11 +162,7 @@ contract GovernanceStrategy is IGovernanceStrategy {
    */
   function _getTotalSupplyAt(
     uint256 blockNumber
-  )
-    internal
-    view
-    returns (uint256)
-  {
+  ) internal view returns (uint256) {
     IAxorToken axorToken = IAxorToken(AXOR_TOKEN);
     uint256 snapshotsCount = axorToken._totalSupplySnapshotsCount();
 

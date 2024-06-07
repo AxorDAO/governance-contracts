@@ -3,7 +3,10 @@ import CID from 'cids';
 import { BigNumber } from 'ethers';
 import { base58 } from 'ethers/lib/utils';
 
-import { IPFSProposalData, UserRewardBalances } from '../types/GovernanceReturnTypes';
+import {
+  IPFSProposalData,
+  UserRewardBalances,
+} from '../types/GovernanceReturnTypes';
 
 const IPFS_ENDPOINT = 'https://cloudflare-ipfs.com/ipfs';
 
@@ -17,7 +20,10 @@ interface MemorizeMetadata {
 
 const MEMORIZE: MemorizeMetadata = {};
 
-export function ipfsHashBytesToIpfsHashString(ipfsHashBytes: string, isBytes32: boolean): string {
+export function ipfsHashBytesToIpfsHashString(
+  ipfsHashBytes: string,
+  isBytes32: boolean,
+): string {
   const trimmedHexString: string = ipfsHashBytes.slice(2);
   if (isBytes32) {
     // bytes32 has the first two bytes (encoding) removed, so assumed it's base58 encoded
@@ -36,7 +42,9 @@ export async function getProposalMetadata(
   const ipfsHash = ipfsHashBytesToIpfsHashString(ipfsHashBytes, true);
   if (MEMORIZE[ipfsHash]) return MEMORIZE[ipfsHash];
   try {
-    const { data } = await axios.get(getLink(ipfsHash), { timeout: ipfsTimeoutMs });
+    const { data } = await axios.get(getLink(ipfsHash), {
+      timeout: ipfsTimeoutMs,
+    });
 
     if (!data?.title) {
       throw Error('Missing `title` field at proposal metadata.');
@@ -58,24 +66,28 @@ export async function getProposalMetadata(
     };
     return MEMORIZE[ipfsHash];
   } catch (e) {
-    console.error(`@axordao/governance-js: IPFS fetch Error: ${(e as Error).message}`);
+    console.error(
+      `@axordao/governance-js: IPFS fetch Error: ${(e as Error).message}`,
+    );
     return {
       ipfsHash,
       dipId: -1,
       title: `Proposal - ${ipfsHash}`,
-      description: 'Proposal with invalid metadata format or IPFS gateway is down',
-      shortDescription: 'Proposal with invalid metadata format or IPFS gateway is down',
+      description:
+        'Proposal with invalid metadata format or IPFS gateway is down',
+      shortDescription:
+        'Proposal with invalid metadata format or IPFS gateway is down',
     };
   }
 }
 
 export async function getMerkleTreeBalancesFromIpfs(
   ipfsHashBytes: string,
-  ipfsTimeoutMs?: number,
+  _ipfsTimeoutMs?: number,
 ): Promise<UserRewardBalances> {
   try {
-    const ipfsHash: string = ipfsHashBytesToIpfsHashString(ipfsHashBytes, false);
-    const { data } = await axios.get(getLink(ipfsHash), { timeout: ipfsTimeoutMs });
+    const ipfsHash: string = ipfsHashBytesToIpfsHashString(ipfsHashBytes, true);
+    const data = await fetch(getLink(ipfsHash)).then((res) => res.json());
     const balances: UserRewardBalances = {};
 
     data.forEach((balance: [string, number]) => {

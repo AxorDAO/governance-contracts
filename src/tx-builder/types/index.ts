@@ -58,6 +58,8 @@ export enum Network {
   ropsten = 'ropsten',
   hardhat = 'hardhat',
   goerli = 'goerli',
+  bsc_testnet = 'bsc_testnet',
+  arbitrum_testnet = 'arbitrum_testnet'
 }
 
 export enum ChainId {
@@ -65,6 +67,8 @@ export enum ChainId {
   ropsten = 3,
   goerli = 5,
   hardhat = 31337,
+  bsc_testnet = 97,
+  arbitrum_testnet = 421614
 }
 
 export enum eEthereumTxType {
@@ -131,7 +135,6 @@ export type tDistinctGovernanceAddresses = {
   AXOR_GOVERNANCE_EXECUTOR_SHORT: tEthereumAddress;
   AXOR_GOVERNANCE_EXECUTOR_LONG: tEthereumAddress;
   AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER: tEthereumAddress;
-  AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE: tEthereumAddress;
   AXOR_GOVERNANCE_STRATEGY: tEthereumAddress;
 };
 

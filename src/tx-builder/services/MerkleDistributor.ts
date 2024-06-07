@@ -1,4 +1,5 @@
 import BNJS from 'bignumber.js';
+import { Client } from '@urql/core';
 import { BigNumber, EventFilter, Event, utils } from 'ethers';
 import { formatEther } from 'ethers/lib/utils';
 import _ from 'lodash';
@@ -34,6 +35,7 @@ import {
   ActiveMerkleTree,
 } from '../types/GovernanceReturnTypes';
 import { getMerkleTreeBalancesFromIpfs } from '../utils/ipfs';
+import { getRootUpdates, RootUpdated } from '../utils/subgraph';
 import BaseService from './BaseService';
 import ERC20Service from './ERC20';
 
@@ -44,10 +46,12 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
   private _activeRootDataAndHistory: ActiveRootDataAndHistory;
   private _proposedRootMetadata: ProposedRootMetadata;
   private _transfersRestrictedBefore: number | null;
+  readonly subgraphClient: Client;
 
   constructor(
     config: Configuration,
     erc20Service: ERC20Service,
+    subgraphClient: Client,
     hardhatMerkleDistributorAddresses?: tMerkleDistributorAddresses,
   ) {
     super(config, MerkleDistributorV1__factory);
@@ -62,6 +66,7 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
       ipfsCid: '',
     };
     this._transfersRestrictedBefore = null;
+    this.subgraphClient = subgraphClient;
 
     const { network } = this.config;
     const isHardhatNetwork: boolean = network === Network.hardhat;
@@ -80,15 +85,7 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
   }
 
   private async getActiveRootData(): Promise<ActiveRootDataAndHistory> {
-    const rootUpdatedFilter: EventFilter = this.contract.filters.RootUpdated(
-      null,
-      null,
-      null,
-    );
-
-    const rootUpdatedEvents: Event[] = await this.contract.queryFilter(
-      rootUpdatedFilter,
-    );
+    const rootUpdatedEvents = await getRootUpdates(this.subgraphClient);
 
     if (!rootUpdatedEvents.length) {
       // if no root has been set to active on the contract yet, show 0 rewards
@@ -96,13 +93,11 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
     }
 
     await Promise.all(
-      rootUpdatedEvents.map(async (rootUpdatedEvent: Event) => {
-        const eventArgs = rootUpdatedEvent.args!;
-        const epoch: number = eventArgs.epoch.toNumber();
-        const ipfsCid: string = eventArgs.ipfsCid;
+      rootUpdatedEvents.map(async (event: RootUpdated) => {
+        const epoch = Number(event.epoch);
+        const ipfsCid = event.ipfsCid;
 
         if (!(epoch in this._activeRootDataAndHistory.userBalancesPerEpoch)) {
-          // fetch user balances from IPFS for this epoch
           const balances: UserRewardBalances =
             await getMerkleTreeBalancesFromIpfs(
               ipfsCid,
@@ -113,8 +108,7 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
       }),
     );
 
-    const lastRootUpdatedEpoch: number = rootUpdatedEvents.length - 1;
-    // active merkle tree must exist if there was a root update event, update if needed
+    const lastRootUpdatedEpoch = rootUpdatedEvents.length - 1;
     this._activeRootDataAndHistory.activeMerkleTree = this.getActiveMerkleTree(
       this._activeRootDataAndHistory.userBalancesPerEpoch[lastRootUpdatedEpoch],
       lastRootUpdatedEpoch,
@@ -127,14 +121,13 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
     activeRootEpochBalances: UserRewardBalances,
     activeRootEpoch: number,
   ): ActiveMerkleTree {
-    let currentMerkleTreeData: ActiveMerkleTree | null =
-      this._activeRootDataAndHistory.activeMerkleTree;
+    let currentMerkleTreeData = this._activeRootDataAndHistory.activeMerkleTree;
 
     if (
       !currentMerkleTreeData ||
       activeRootEpoch > currentMerkleTreeData!.epoch
     ) {
-      const merkleTree: BalanceTree = new BalanceTree(activeRootEpochBalances);
+      const merkleTree = new BalanceTree(activeRootEpochBalances);
       currentMerkleTreeData = {
         epoch: activeRootEpoch,
         merkleTree,
@@ -242,8 +235,7 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
     const activeRootDataAndHistory: ActiveRootDataAndHistory =
       await this.getActiveRootData();
 
-    const activeMerkleTree: ActiveMerkleTree | null =
-      activeRootDataAndHistory.activeMerkleTree;
+    const activeMerkleTree = activeRootDataAndHistory.activeMerkleTree;
 
     if (!activeMerkleTree) {
       // no root has been promoted to active on merkle distributor
@@ -253,9 +245,8 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
       };
     }
 
-    const userBalancesPerEpoch: UserRewardsBalancesPerEpoch =
-      activeRootDataAndHistory.userBalancesPerEpoch;
-    const activeRootEpoch: number = activeMerkleTree.epoch;
+    const userBalancesPerEpoch = activeRootDataAndHistory.userBalancesPerEpoch;
+    const activeRootEpoch = activeMerkleTree.epoch;
 
     if (!(activeRootEpoch in userBalancesPerEpoch)) {
       throw Error(`Balances were not found for epoch ${activeRootEpoch}`);
@@ -289,6 +280,7 @@ export default class MerkleDistributor extends BaseService<MerkleDistributorV1> 
     const merkleProof: MerkleProof = await this.getActiveRootMerkleProof(
       checksummedAddress,
     );
+
     if (!merkleProof.merkleProof.length) {
       throw new Error('User not found in the Merkle tree');
     }

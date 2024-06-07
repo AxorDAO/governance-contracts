@@ -55,6 +55,7 @@ function getRemoteNetworkConfig(
   networkId: number,
 ): HttpNetworkUserConfig {
   return {
+    // url: `https://eth-${networkName}.g.alchemy.com/v2/${ALCHEMY_KEY}`,
     url: `https://eth-${networkName}.g.alchemy.com/v2/${ALCHEMY_KEY}`,
     chainId: networkId,
     accounts: {
@@ -99,6 +100,28 @@ const hardhatConfig: HardhatUserConfig = {
         },
       },
     ],
+    overrides: {
+      'contracts/utils/erc20.sol': {
+        version: '0.5.16',
+        settings: {
+          evmVersion: 'istanbul',
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      'contracts/utils/usdt.sol': {
+        version: '0.5.16',
+        settings: {
+          evmVersion: 'istanbul',
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    },
   },
   typechain: {
     outDir: 'types',
@@ -112,8 +135,18 @@ const hardhatConfig: HardhatUserConfig = {
     sepolia: getRemoteNetworkConfig(NetworkName.sepolia, 11155111),
     goerli: getRemoteNetworkConfig(NetworkName.goerli, 5),
     kovan: getRemoteNetworkConfig(NetworkName.kovan, 42),
+    bsc_testnet: {
+      url: 'https://data-seed-prebsc-2-s3.binance.org:8545',
+      chainId: 97,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
     ropsten: getRemoteNetworkConfig(NetworkName.ropsten, 3),
     mainnet: getRemoteNetworkConfig(NetworkName.mainnet, 1),
+    arbitrum_testnet: {
+      url: 'https://public.stackup.sh/api/v1/node/arbitrum-sepolia',
+      chainId: 421614,
+      accounts: [process.env.PRIVATE_KEY || ''],
+    },
     hardhat: getHardhatConfig(),
   },
   abiExporter: {
@@ -125,7 +158,19 @@ const hardhatConfig: HardhatUserConfig = {
       // mainnet: process.env.MAINNET_ETHERSCAN_API_KEY!,
       sepolia: process.env.SEPOLIA_ETHERSCAN_API_KEY!,
       goerli: process.env.SEPOLIA_ETHERSCAN_API_KEY!,
+      bscTestnet: process.env.BSC_SCAN_API_KEY!,
+      arbitrumTestnet: process.env.ARB_SCAN_API_KEY!,
     },
+    customChains: [
+      {
+        network: 'arbitrumTestnet',
+        chainId: 421614,
+        urls: {
+          apiURL: 'https://api-sepolia.arbiscan.io/api',
+          browserURL: 'https://sepolia.arbiscan.io/',
+        },
+      },
+    ],
   },
 };
 

@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon';
 
 import config from '../config';
-import { ONE_DAY_SECONDS } from '../lib/constants';
+import { ONE_DAY_SECONDS as DAY } from '../lib/constants';
 import baseConfig, { BaseConfig } from './base-config';
-import hardhatConfig from './hardhat-config';
+import testConfig, { MINUTE } from './test-config';
+import hardhatConfig, { testnetConfig } from './hardhat-config';
 import mainnetForkConfig from './mainnet-fork-config';
 import mainnetPhase1Config from './mainnet-phase-1-config';
 import mainnetPhase2Config from './mainnet-phase-2-config';
@@ -18,14 +19,15 @@ export function getDeployConfig({
   getOldMainnetPhase1 = false,
   getOldMainnetPhase2 = false,
 }: {
-  getOldMainnetPhase1?: boolean,
-  getOldMainnetPhase2?: boolean,
+  getOldMainnetPhase1?: boolean;
+  getOldMainnetPhase2?: boolean;
 } = {}): DeployConfig {
-  // Copy the base config.
+  const base = config.isTestnet() ? testConfig : baseConfig;
+  const ONE_DAY_SECONDS = config.isTestnet() ? 15 * MINUTE : DAY
   const deployConfig: BaseConfig & {
-    EPOCH_ZERO_START?: DeployConfig['EPOCH_ZERO_START'],
+    EPOCH_ZERO_START?: DeployConfig['EPOCH_ZERO_START'];
   } = {
-    ...baseConfig,
+    ...base,
   };
 
   // Override parameters depending on the environment or deployment phase. This must include
@@ -45,6 +47,8 @@ export function getDeployConfig({
     }
   } else if (config.isMainnet()) {
     Object.assign(deployConfig, mainnetPhase2Config);
+  } else if (config.isTestnet()) {
+    Object.assign(deployConfig, testnetConfig);
   } else {
     // Need to add a new configuration file to set the value of EPOCH_ZERO_START.
     throw new Error('Deployment configuration is not known for this network.');
@@ -83,14 +87,17 @@ export function getDeployConfig({
     // Token schedule parameters.
     EPOCH_ZERO_START: deployConfig.EPOCH_ZERO_START,
     TRANSFERS_RESTRICTED_BEFORE,
-    TRANSFER_RESTRICTION_LIFTED_NO_LATER_THAN: TRANSFERS_RESTRICTED_BEFORE + 30 * ONE_DAY_SECONDS,
+    TRANSFER_RESTRICTION_LIFTED_NO_LATER_THAN:
+      TRANSFERS_RESTRICTED_BEFORE + 30 * ONE_DAY_SECONDS,
     MINTING_RESTRICTED_BEFORE: addFiveYears(TRANSFERS_RESTRICTED_BEFORE),
 
     // Staking schedule parameters.
     LS_DISTRIBUTION_START: deployConfig.EPOCH_ZERO_START,
-    LS_DISTRIBUTION_END: deployConfig.EPOCH_ZERO_START + deployConfig.REWARDS_DISTRIBUTION_LENGTH,
+    LS_DISTRIBUTION_END:
+      deployConfig.EPOCH_ZERO_START + deployConfig.REWARDS_DISTRIBUTION_LENGTH,
     SM_DISTRIBUTION_START: TRANSFERS_RESTRICTED_BEFORE,
-    SM_DISTRIBUTION_END: TRANSFERS_RESTRICTED_BEFORE + deployConfig.REWARDS_DISTRIBUTION_LENGTH,
+    SM_DISTRIBUTION_END:
+      TRANSFERS_RESTRICTED_BEFORE + deployConfig.REWARDS_DISTRIBUTION_LENGTH,
 
     // Treasury parameters.
     REWARDS_TREASURY_VESTER_CONFIG,
@@ -101,8 +108,6 @@ export function getDeployConfig({
 /**
  * Add five years to a timestamp. This adds (365 * 5) days plus 1 day for the leap year.
  */
-function addFiveYears(
-  timestamp: number,
-): number {
+function addFiveYears(timestamp: number): number {
   return DateTime.fromSeconds(timestamp).plus({ years: 5 }).toSeconds();
 }

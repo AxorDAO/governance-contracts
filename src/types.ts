@@ -39,6 +39,8 @@ export enum NetworkName {
   kovan = 'kovan',
   sepolia = 'sepolia',
   goerli = 'goerli',
+  bsc_testnet = 'bsc_testnet',
+  arbitrum_testnet = 'arbitrum_testnet',
   hardhat = 'hardhat',
 }
 

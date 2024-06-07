@@ -3,9 +3,9 @@ import {
   AxorGovernor,
   AxorGovernor__factory,
   AxorToken,
-  AxorToken__factory,
   Executor,
   Executor__factory,
+  MockAxorToken__factory,
   Multicall2__factory,
   USDT__factory,
 } from '../../types';
@@ -16,7 +16,6 @@ import { ZERO_ADDRESS } from '../lib/constants';
 import { log } from '../lib/logging';
 import { waitForTx } from '../lib/util';
 import { deployExecutor } from './helpers/deploy-executor';
-import { transferWithPrompt } from './helpers/transfer-tokens';
 
 export async function deployPhase1({
   startStep = 0,
@@ -53,7 +52,7 @@ export async function deployPhase1({
 
   if (startStep <= 1) {
     log('Step 1. Deploy AXOR token');
-    axor = await new AxorToken__factory(deployer).deploy(
+    axor = await new MockAxorToken__factory(deployer).deploy(
       deployerAddress,
       deployConfig.TRANSFERS_RESTRICTED_BEFORE,
       deployConfig.TRANSFER_RESTRICTION_LIFTED_NO_LATER_THAN,
@@ -73,7 +72,7 @@ export async function deployPhase1({
     if (!axorTokenAddress) {
       throw new Error('Expected parameter axorTokenAddress to be specified.');
     }
-    axor = new AxorToken__factory(deployer).attach(axorTokenAddress);
+    axor = new MockAxorToken__factory(deployer).attach(axorTokenAddress);
   }
 
   if (startStep <= 2) {

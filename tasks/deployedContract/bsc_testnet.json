@@ -1,0 +1,25 @@
+{
+  "axorTokenAddress": "0x50974ff505526Ce2C03F15c5D8EE66793a5Ce3EA",
+  "governorAddress": "0xaAcBC684DA8fEd8CD44bD97c6De10B7c81776D8D",
+  "shortTimelockAddress": "0x6DC58A7EAa4802EdB39E9EA3978f4EE519722C3d",
+  "longTimelockAddress": "0x696c8a3FC14F1A735658Da8e68c63049a6853C29",
+  "merklePauserTimelockAddress": "0xf2EE21C88C2d593321287f73302F6214D0550eB4",
+  "axorCollateralTokenAddress": "0x9c799Bd1FD2F6aD424983ff2fa9DB9896dE5e0a0",
+  "multicallAddresses": "0xc1fEF08ab001a88Ee1196b896F28bB2534a4295d",
+  "rewardsTreasuryProxyAdminAddress": "0xCfaD74E68e7feb947bDb4e334B34aC9b245f04a7",
+  "rewardsTreasuryAddress": "0x464B82b542702Eb1AE7786771d524583DF7BfB7d",
+  "communityTreasuryAddress": "0x7288a676FbD610b17979BAF15F70ABdabD76E26c",
+  "communityTreasuryProxyAdminAddress": "0x76dF71008531870730Ba4548c43e53f3ff47B82F",
+  "strategyAddress": "0x6A8c8b9Dd95960681F963cA3836C13B5B286f5FE",
+  "claimsProxyAddress": "0xa314DE580CD41895d55d0c506B3EcAFAB366aDD2",
+  "rewardsTreasuryVesterAddress": "0xd85D7521a5Bbd90f55c3c0FE24aAa789D192FE44",
+  "communityTreasuryVesterAddress": "0x0C30C293b57D3D90beEE7d9CED35152413Adb593",
+  "safetyModuleAddress": "0x7557b2568AEB2e7ea0286CF7eAF67D35fEC47FDb",
+  "safetyModuleProxyAdminAddress": "0x0a322f583669c1A04f70613e7F8b37a41335d913",
+  "liquidityStakingAddress": "0x50b688C071898277f3E31a16c56d35e45dF69798",
+  "liquidityStakingProxyAdminAddress": "0x219600842c796E81DF28Fe405361254f3A725906",
+  "merkleDistributorAddress": "0x678EA03cf57002902084BD53a1285F263ff5F93c",
+  "merkleDistributorProxyAdminAddress": "0xb496a46BE5168f6A2412d6f80a3946f9ACA3c87d",
+  "oracleAdapterAddress": "0x8FfbAF52e6bAc68202eA391D92648E008d55332c"
+}
+

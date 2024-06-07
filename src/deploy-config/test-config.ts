@@ -1,27 +1,20 @@
-/**
- * Configuration values for the mainnet deployment, used as the defaults for other deployments.
- *
- * Time periods and timestamps are in seconds unless otherwise indicated.
- */
-
 import BNJS from 'bignumber.js';
 import { DateTime } from 'luxon';
-
-import {
-  ONE_DAY_BLOCKS,
-  ONE_DAY_SECONDS,
-} from '../lib/constants';
 import { toWad } from '../lib/util';
-import { TimelockConfig, MerkleDistributorConfig} from './types';
+import { TimelockConfig, MerkleDistributorConfig } from './types';
+
+export const MINUTE = 60;
+export const ONE_DAY_BLOCKS = 1000;
 
 // Schedule parameters.
-const EPOCH_LENGTH = 28 * ONE_DAY_SECONDS;
-const BLACKOUT_WINDOW = 3 * ONE_DAY_SECONDS;
-const MERKLE_DISTRIBUTOR_WAITING_PERIOD = 7 * ONE_DAY_SECONDS;
+const EPOCH_LENGTH = 28 * MINUTE;
+const BLACKOUT_WINDOW = 5 * MINUTE;
+const MERKLE_DISTRIBUTOR_WAITING_PERIOD = 7 * MINUTE;
 
-// Equal to 65 epochs plus a portion of an epoch, to account for leftover rewards due to the
+// Equal to 514 epochs plus a portion of an epoch, to account for leftover rewards due to the
 // different start dates of the two staking modules.
-const REWARDS_DISTRIBUTION_LENGTH = 157_679_998;
+// It's approximately 10 days 
+const REWARDS_DISTRIBUTION_LENGTH = 863_520;
 
 // Staking parameters.
 //
@@ -29,35 +22,24 @@ const REWARDS_DISTRIBUTION_LENGTH = 157_679_998;
 const STAKING_REWARDS_PER_SECOND = toWad('0.1585489619');
 
 // Treasury parameters.
-//
-// Frontloaded rewards is sum of:
-//   - 75M (retroactive distribution)
-//   - 383,562 (epoch 0 Liquidity Module rewards)
-//   - 3,835,616 (epoch 0 trader rewards)
-//   - 1,150,685 (epoch 0 liquidity provider rewards)
-const REWARDS_TREASURY_FRONTLOADED_FUNDS = toWad(
-  75_000_000 +
-  383_562 +
-  3_835_616 +
-  1_150_685,
-);
+const REWARDS_TREASURY_FRONTLOADED_FUNDS = toWad(1_000_000);
 
 const LONG_TIMELOCK_CONFIG: TimelockConfig = {
-  DELAY: ONE_DAY_SECONDS * 7,
-  GRACE_PERIOD: ONE_DAY_SECONDS * 7,
-  MINIMUM_DELAY: ONE_DAY_SECONDS * 5,
-  MAXIMUM_DELAY: ONE_DAY_SECONDS * 21,
-  PROPOSITION_THRESHOLD: 200,
-  VOTING_DURATION_BLOCKS: ONE_DAY_BLOCKS * 10,
-  VOTE_DIFFERENTIAL: 1000,
-  MINIMUM_QUORUM: 1000,
+  DELAY: MINUTE * 7,
+  GRACE_PERIOD: MINUTE * 30,
+  MINIMUM_DELAY: MINUTE * 5, // delay time is time from queue action to execution action
+  MAXIMUM_DELAY: MINUTE * 21,
+  PROPOSITION_THRESHOLD: 200, // 2%
+  VOTING_DURATION_BLOCKS: ONE_DAY_BLOCKS * 2, // voting duration in 10000 block
+  VOTE_DIFFERENTIAL: 1000, // 10%
+  MINIMUM_QUORUM: 1000, // 10%
 };
 
 const SHORT_TIMELOCK_CONFIG: TimelockConfig = {
-  DELAY: ONE_DAY_SECONDS * 2,
-  GRACE_PERIOD: ONE_DAY_SECONDS * 7,
-  MINIMUM_DELAY: ONE_DAY_SECONDS,
-  MAXIMUM_DELAY: ONE_DAY_SECONDS * 7,
+  DELAY: MINUTE * 2,
+  GRACE_PERIOD: MINUTE * 7,
+  MINIMUM_DELAY: MINUTE,
+  MAXIMUM_DELAY: MINUTE * 7,
   PROPOSITION_THRESHOLD: 50,
   VOTING_DURATION_BLOCKS: ONE_DAY_BLOCKS * 4,
   VOTE_DIFFERENTIAL: 50,
@@ -66,15 +48,14 @@ const SHORT_TIMELOCK_CONFIG: TimelockConfig = {
 
 const MERKLE_PAUSER_TIMELOCK_CONFIG: TimelockConfig = {
   DELAY: 0,
-  GRACE_PERIOD: ONE_DAY_SECONDS * 7,
+  GRACE_PERIOD: MINUTE * 7,
   MINIMUM_DELAY: 0,
-  MAXIMUM_DELAY: ONE_DAY_SECONDS,
+  MAXIMUM_DELAY: MINUTE,
   PROPOSITION_THRESHOLD: 50,
   VOTING_DURATION_BLOCKS: ONE_DAY_BLOCKS * 2,
   VOTE_DIFFERENTIAL: 50,
   MINIMUM_QUORUM: 100,
 };
-
 
 const MERKLE_DISTRIBUTOR_CONFIG: MerkleDistributorConfig = {
   IPNS_NAME: 'rewards-data.axor.dao',
@@ -83,6 +64,7 @@ const MERKLE_DISTRIBUTOR_CONFIG: MerkleDistributorConfig = {
   TRADER_REWARDS_AMOUNT: 3_835_616,
   TRADER_SCORE_ALPHA: 0.7,
 };
+
 
 const config = {
   // Common schedule parameters.
@@ -115,8 +97,8 @@ const config = {
   SM_REWARDS_PER_SECOND: STAKING_REWARDS_PER_SECOND,
 
   // Liquidity Staking.
-  LS_MIN_BLACKOUT_LENGTH: 3 * ONE_DAY_SECONDS,
-  LS_MAX_EPOCH_LENGTH: 92 * ONE_DAY_SECONDS,
+  LS_MIN_BLACKOUT_LENGTH: 3 * MINUTE,
+  LS_MAX_EPOCH_LENGTH: 92 * MINUTE,
   LS_REWARDS_PER_SECOND: STAKING_REWARDS_PER_SECOND,
   getLiquidityStakingMinEpochLength() {
     return this.LS_MIN_BLACKOUT_LENGTH * 2;
@@ -124,7 +106,6 @@ const config = {
   getLiquidityStakingMaxBlackoutLength() {
     return this.LS_MAX_EPOCH_LENGTH / 2;
   },
-
 
   // Treasuries.
   REWARDS_TREASURY_FRONTLOADED_FUNDS,
@@ -163,7 +144,9 @@ const config = {
 
   // Addresses which were used on mainnet for token custody testing.
   TOKEN_TEST_ADDRESSES: [
-    
+    // '0x4aBfCf64bB323CC8B65e2E69F2221B14943C6EE1',
+    // '0x4c58f30d3C028a5Fc28Ed709eE0041a37f438023',
+    // '0xD2353b46fEd0BB1286d01b2BD89C40b76Cfe8874'
   ],
 
   // Safety Module recovery.
@@ -236,7 +219,7 @@ const config = {
   UPDATE_MERKLE_DISTRIBUTOR_TRADER_REWARDS_AMOUNT_v2: '1582192000000000000000000',
   UPDATE_MERKLE_DISTRIBUTOR_ALPHA_PARAMETER_v2: '0',
 
-  
+
   // Ops Trust ("DOT") Funding Amount (DIP 23)
   // Amount to be transferred is $6,600,000 of AXOR
   // Per the DIP price has been calculated using 24h VWAP from market data

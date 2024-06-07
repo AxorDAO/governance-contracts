@@ -6,7 +6,6 @@ export enum ExecutorType {
   Short,
   Long,
   Merkle,
-  Starkware,
 }
 
 export type GovCreateType = {

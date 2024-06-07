@@ -76,11 +76,11 @@ describeContractHardhatRevertBeforeEach(
 
     describe('Token details', () => {
       it('Has correct name', async () => {
-        expect(await ctx.safetyModule.name()).to.equal('Staked AXOR');
+        expect(await ctx.safetyModule.name()).to.equal('Stake AXR');
       });
 
       it('Has correct symbol', async () => {
-        expect(await ctx.safetyModule.symbol()).to.equal('stkAXOR');
+        expect(await ctx.safetyModule.symbol()).to.equal('sAXR');
       });
 
       it('Has correct decimals', async () => {

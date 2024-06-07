@@ -5,14 +5,9 @@
 import { BigNumber } from 'bignumber.js';
 import _ from 'lodash';
 
-import {
-  getNetworkName,
-} from '../hre';
+import { getNetworkName } from '../hre';
 import { ConfigError } from '../lib/errors';
-import {
-  BigNumberable,
-  NetworkName,
-} from '../types';
+import { BigNumberable, NetworkName } from '../types';
 
 // A parse function takes the name of an environment variable as an argument, and parses and
 // returns that variable from `process.env`.
@@ -39,9 +34,16 @@ function defaultIsValid(
 }
 
 export function parseString(): ParseFn<string>;
+
 export function parseString(options: ParseOptions<string>): ParseFn<string>;
-export function parseString(options: ParseOptions<null>): ParseFn<string | null>;
-export function parseString(options?: ParseOptions<string | null>): ParseFn<string | null> {
+
+export function parseString(
+  options: ParseOptions<null>,
+): ParseFn<string | null>;
+
+export function parseString(
+  options?: ParseOptions<string | null>,
+): ParseFn<string | null> {
   return (varName: string) => {
     const value = process.env[varName];
     if (!value) {
@@ -55,9 +57,16 @@ export function parseString(options?: ParseOptions<string | null>): ParseFn<stri
 }
 
 export function parseBoolean(): ParseFn<boolean>;
+
 export function parseBoolean(options: ParseOptions<boolean>): ParseFn<boolean>;
-export function parseBoolean(options: ParseOptions<null>): ParseFn<boolean | null>;
-export function parseBoolean(options?: ParseOptions<boolean | null>): ParseFn<boolean | null> {
+
+export function parseBoolean(
+  options: ParseOptions<null>,
+): ParseFn<boolean | null>;
+
+export function parseBoolean(
+  options?: ParseOptions<boolean | null>,
+): ParseFn<boolean | null> {
   return (varName: string) => {
     const rawValue = process.env[varName];
     if (!rawValue) {
@@ -78,8 +87,12 @@ export function parseBoolean(options?: ParseOptions<boolean | null>): ParseFn<bo
 
 export function parseNumber(): ParseFn<number>;
 export function parseNumber(options: ParseOptions<number>): ParseFn<number>;
-export function parseNumber(options: ParseOptions<null>): ParseFn<number | null>;
-export function parseNumber(options?: ParseOptions<number | null>): ParseFn<number | null> {
+export function parseNumber(
+  options: ParseOptions<null>,
+): ParseFn<number | null>;
+export function parseNumber(
+  options?: ParseOptions<number | null>,
+): ParseFn<number | null> {
   return (varName: string) => {
     const rawValue = process.env[varName];
     if (!rawValue) {
@@ -98,14 +111,20 @@ export function parseNumber(options?: ParseOptions<number | null>): ParseFn<numb
 
 export function parseInteger(): ParseFn<number>;
 export function parseInteger(options: ParseOptions<number>): ParseFn<number>;
-export function parseInteger(options: ParseOptions<null>): ParseFn<number | null>;
-export function parseInteger(options?: ParseOptions<number | null>): ParseFn<number | null> {
+export function parseInteger(
+  options: ParseOptions<null>,
+): ParseFn<number | null>;
+export function parseInteger(
+  options?: ParseOptions<number | null>,
+): ParseFn<number | null> {
   return (varName: string) => {
     const rawValue = process.env[varName];
     if (!rawValue) {
       if (defaultIsValid(options)) {
         if (options.default !== null && !Number.isInteger(options.default)) {
-          throw new ConfigError(`Expected integer default value for env var '${varName}'`);
+          throw new ConfigError(
+            `Expected integer default value for env var '${varName}'`,
+          );
         }
         return options.default;
       }
@@ -120,16 +139,22 @@ export function parseInteger(options?: ParseOptions<number | null>): ParseFn<num
 }
 
 export function parseBN(): ParseFn<BigNumber>;
-export function parseBN(options: ParseOptions<BigNumberable>): ParseFn<BigNumber>;
+export function parseBN(
+  options: ParseOptions<BigNumberable>,
+): ParseFn<BigNumber>;
 export function parseBN(options: ParseOptions<null>): ParseFn<BigNumber | null>;
-export function parseBN(options?: ParseOptions<BigNumberable | null>): ParseFn<BigNumber | null> {
+export function parseBN(
+  options?: ParseOptions<BigNumberable | null>,
+): ParseFn<BigNumber | null> {
   return (varName: string) => {
     const rawValue = process.env[varName];
     if (!rawValue) {
       if (defaultIsValid(options)) {
         return options.default === null ? null : new BigNumber(options.default);
       }
-      throw new ConfigError(`Missing required env var '${varName}' (BigNumber)`);
+      throw new ConfigError(
+        `Missing required env var '${varName}' (BigNumber)`,
+      );
     }
     const value = new BigNumber(rawValue);
     if (value.isNaN()) {
@@ -167,9 +192,15 @@ export function parseSchema<T extends SchemaBase>(
     isMainnet: () => getNetworkName() === NetworkName.mainnet,
     isRopsten: () => getNetworkName() === NetworkName.ropsten,
     isKovan: () => getNetworkName() === NetworkName.kovan,
+    isSepolia: () => getNetworkName() === NetworkName.sepolia,
     isHardhat: () => getNetworkName() === NetworkName.hardhat,
     isTestnet: () => {
-      return [NetworkName.ropsten, NetworkName.kovan].includes(getNetworkName());
+      return [
+        NetworkName.ropsten,
+        NetworkName.bsc_testnet,
+        NetworkName.sepolia,
+        NetworkName.arbitrum_testnet,
+      ].includes(getNetworkName());
     },
   };
 }

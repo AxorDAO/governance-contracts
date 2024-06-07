@@ -2,8 +2,8 @@
 pragma solidity 0.7.5;
 pragma abicoder v2;
 
-import { SM1Types } from '../lib/SM1Types.sol';
-import { SM1Storage } from './SM1Storage.sol';
+import {SM1Types} from '../lib/SM1Types.sol';
+import {SM1Storage} from './SM1Storage.sol';
 
 /**
  * @title SM1Snapshots
@@ -15,7 +15,6 @@ import { SM1Storage } from './SM1Storage.sol';
  *  that block.
  */
 abstract contract SM1Snapshots {
-
   /**
    * @dev Writes a snapshot of a value at the current block.
    *
@@ -29,10 +28,7 @@ abstract contract SM1Snapshots {
     mapping(uint256 => SM1Types.Snapshot) storage snapshots,
     uint256 snapshotCount,
     uint256 newValue
-  )
-    internal
-    returns (uint256)
-  {
+  ) internal returns (uint256) {
     uint256 currentBlock = block.number;
 
     if (
@@ -65,15 +61,8 @@ abstract contract SM1Snapshots {
     uint256 snapshotCount,
     uint256 blockNumber,
     uint256 initialValue
-  )
-    internal
-    view
-    returns (uint256)
-  {
-    require(
-      blockNumber <= block.number,
-      'SM1Snapshots: INVALID_BLOCK_NUMBER'
-    );
+  ) internal view returns (uint256) {
+    require(blockNumber <= block.number, 'SM1Snapshots: INVALID_BLOCK_NUMBER');
 
     if (snapshotCount == 0) {
       return initialValue;

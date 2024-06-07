@@ -2,10 +2,10 @@
 pragma solidity 0.7.5;
 pragma abicoder v2;
 
-import { SafeMath } from '../../../dependencies/open-zeppelin/SafeMath.sol';
-import { LS1Types } from '../lib/LS1Types.sol';
-import { SafeCast } from '../lib/SafeCast.sol';
-import { LS1Roles } from './LS1Roles.sol';
+import {SafeMath} from '../../../dependencies/open-zeppelin/SafeMath.sol';
+import {LS1Types} from '../lib/LS1Types.sol';
+import {SafeCast} from '../lib/SafeCast.sol';
+import {LS1Roles} from './LS1Roles.sol';
 
 /**
  * @title LS1EpochSchedule
@@ -25,29 +25,23 @@ import { LS1Roles } from './LS1Roles.sol';
  *  The recommended epoch length and blackout window are 28 and 7 days respectively; however, these
  *  are modifiable by the admin, within the specified bounds.
  */
-abstract contract LS1EpochSchedule is
-  LS1Roles
-{
+abstract contract LS1EpochSchedule is LS1Roles {
   using SafeCast for uint256;
   using SafeMath for uint256;
 
   // ============ Constants ============
 
   /// @dev Minimum blackout window. Note: The min epoch length is twice the current blackout window.
-  uint256 private constant MIN_BLACKOUT_WINDOW = 3 days;
+  uint256 private constant MIN_BLACKOUT_WINDOW = 5 minutes;
 
   /// @dev Maximum epoch length. Note: The max blackout window is half the current epoch length.
   uint256 private constant MAX_EPOCH_LENGTH = 92 days; // Approximately one quarter year.
 
   // ============ Events ============
 
-  event EpochParametersChanged(
-    LS1Types.EpochParameters epochParameters
-  );
+  event EpochParametersChanged(LS1Types.EpochParameters epochParameters);
 
-  event BlackoutWindowChanged(
-    uint256 blackoutWindow
-  );
+  event BlackoutWindowChanged(uint256 blackoutWindow);
 
   // ============ Initializer ============
 
@@ -55,9 +49,7 @@ abstract contract LS1EpochSchedule is
     uint256 interval,
     uint256 offset,
     uint256 blackoutWindow
-  )
-    internal
-  {
+  ) internal {
     require(
       block.timestamp < offset,
       'LS1EpochSchedule: Epoch zero must be in future'
@@ -79,12 +71,11 @@ abstract contract LS1EpochSchedule is
    *
    * @return The current epoch number.
    */
-  function getCurrentEpoch()
-    public
-    view
-    returns (uint256)
-  {
-    (uint256 interval, uint256 offsetTimestamp) = _getIntervalAndOffsetTimestamp();
+  function getCurrentEpoch() public view returns (uint256) {
+    (
+      uint256 interval,
+      uint256 offsetTimestamp
+    ) = _getIntervalAndOffsetTimestamp();
     return offsetTimestamp.div(interval);
   }
 
@@ -95,12 +86,11 @@ abstract contract LS1EpochSchedule is
    *
    * @return The number of seconds until the next epoch.
    */
-  function getTimeRemainingInCurrentEpoch()
-    public
-    view
-    returns (uint256)
-  {
-    (uint256 interval, uint256 offsetTimestamp) = _getIntervalAndOffsetTimestamp();
+  function getTimeRemainingInCurrentEpoch() public view returns (uint256) {
+    (
+      uint256 interval,
+      uint256 offsetTimestamp
+    ) = _getIntervalAndOffsetTimestamp();
     uint256 timeElapsedInEpoch = offsetTimestamp.mod(interval);
     return interval.sub(timeElapsedInEpoch);
   }
@@ -110,13 +100,7 @@ abstract contract LS1EpochSchedule is
    *
    * @return The timestamp in seconds representing the start of that epoch.
    */
-  function getStartOfEpoch(
-    uint256 epochNumber
-  )
-    public
-    view
-    returns (uint256)
-  {
+  function getStartOfEpoch(uint256 epochNumber) public view returns (uint256) {
     LS1Types.EpochParameters memory epochParameters = _EPOCH_PARAMETERS_;
     uint256 interval = uint256(epochParameters.interval);
     uint256 offset = uint256(epochParameters.offset);
@@ -129,11 +113,7 @@ abstract contract LS1EpochSchedule is
    * @return Boolean `true` if the current timestamp is at least the start of epoch zero,
    *  otherwise `false`.
    */
-  function hasEpochZeroStarted()
-    public
-    view
-    returns (bool)
-  {
+  function hasEpochZeroStarted() public view returns (bool) {
     LS1Types.EpochParameters memory epochParameters = _EPOCH_PARAMETERS_;
     uint256 offset = uint256(epochParameters.offset);
     return block.timestamp >= offset;
@@ -145,34 +125,25 @@ abstract contract LS1EpochSchedule is
    *
    * @return Boolean `true` if we are in a blackout window, otherwise `false`.
    */
-  function inBlackoutWindow()
-    public
-    view
-    returns (bool)
-  {
-    return hasEpochZeroStarted() && getTimeRemainingInCurrentEpoch() <= _BLACKOUT_WINDOW_;
+  function inBlackoutWindow() public view returns (bool) {
+    return
+      hasEpochZeroStarted() &&
+      getTimeRemainingInCurrentEpoch() <= _BLACKOUT_WINDOW_;
   }
 
   // ============ Internal Functions ============
 
-  function _setEpochParameters(
-    uint256 interval,
-    uint256 offset
-  )
-    internal
-  {
+  function _setEpochParameters(uint256 interval, uint256 offset) internal {
     _validateParamLengths(interval, _BLACKOUT_WINDOW_);
-    LS1Types.EpochParameters memory epochParameters =
-      LS1Types.EpochParameters({interval: interval.toUint128(), offset: offset.toUint128()});
+    LS1Types.EpochParameters memory epochParameters = LS1Types.EpochParameters({
+      interval: interval.toUint128(),
+      offset: offset.toUint128()
+    });
     _EPOCH_PARAMETERS_ = epochParameters;
     emit EpochParametersChanged(epochParameters);
   }
 
-  function _setBlackoutWindow(
-    uint256 blackoutWindow
-  )
-    internal
-  {
+  function _setBlackoutWindow(uint256 blackoutWindow) internal {
     _validateParamLengths(uint256(_EPOCH_PARAMETERS_.interval), blackoutWindow);
     _BLACKOUT_WINDOW_ = blackoutWindow;
     emit BlackoutWindowChanged(blackoutWindow);
@@ -197,7 +168,10 @@ abstract contract LS1EpochSchedule is
     uint256 interval = uint256(epochParameters.interval);
     uint256 offset = uint256(epochParameters.offset);
 
-    require(block.timestamp >= offset, 'LS1EpochSchedule: Epoch zero has not started');
+    require(
+      block.timestamp >= offset,
+      'LS1EpochSchedule: Epoch zero has not started'
+    );
 
     uint256 offsetTimestamp = block.timestamp.sub(offset);
     return (interval, offsetTimestamp);
@@ -209,10 +183,7 @@ abstract contract LS1EpochSchedule is
   function _validateParamLengths(
     uint256 interval,
     uint256 blackoutWindow
-  )
-    private
-    pure
-  {
+  ) private pure {
     require(
       blackoutWindow.mul(2) <= interval,
       'LS1EpochSchedule: Blackout window can be at most half the epoch length'

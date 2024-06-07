@@ -4,6 +4,8 @@ import { providers } from 'ethers';
 import {
   MAINNET_SUBGRAPH_URL,
   GOERLI_SUBGRAPH_URL,
+  BSC_TESTNET_SUBGRAPH_URL,
+  ARBITRUM_TESTNET_SUBGRAPH_URL,
 } from './config';
 import AxorGovernance from './services/AxorGovernance';
 import AxorGovernanceService from './services/AxorGovernance';
@@ -52,7 +54,6 @@ export default class TxBuilder extends BaseTxBuilder {
       AXOR_GOVERNANCE_EXECUTOR_SHORT: '',
       AXOR_GOVERNANCE_EXECUTOR_LONG: '',
       AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER: '',
-      AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE: '',
       AXOR_GOVERNANCE_STRATEGY: '',
     },
     hardhatTokenAddresses = {
@@ -104,14 +105,16 @@ export default class TxBuilder extends BaseTxBuilder {
     let subgraphClient: Client;
     switch (network) {
       case Network.goerli:
-        subgraphClient = createClient({
-          url: GOERLI_SUBGRAPH_URL,
-        });
+        subgraphClient = createClient({ url: GOERLI_SUBGRAPH_URL });
+        break;
+      case Network.bsc_testnet:
+        subgraphClient = createClient({ url: BSC_TESTNET_SUBGRAPH_URL });
+        break;
+      case Network.arbitrum_testnet:
+        subgraphClient = createClient({ url: ARBITRUM_TESTNET_SUBGRAPH_URL });
         break;
       case Network.main:
-        subgraphClient = createClient({
-          url: MAINNET_SUBGRAPH_URL,
-        });
+        subgraphClient = createClient({ url: MAINNET_SUBGRAPH_URL });
         break;
       case Network.hardhat:
         console.log(
@@ -160,6 +163,7 @@ export default class TxBuilder extends BaseTxBuilder {
     this.merkleDistributorService = new MerkleDistributorService(
       this.configuration,
       this.erc20Service,
+      subgraphClient,
       hardhatMerkleDistributorAddresses,
     );
 

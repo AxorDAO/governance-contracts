@@ -117,7 +117,6 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
       AXOR_GOVERNANCE_EXECUTOR_SHORT,
       AXOR_GOVERNANCE_EXECUTOR_LONG,
       AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER,
-      AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE,
       AXOR_GOVERNANCE_STRATEGY,
     } = governanceAddresses;
 
@@ -127,8 +126,6 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     this.executors[ExecutorType.Long] = AXOR_GOVERNANCE_EXECUTOR_LONG;
     this.executors[ExecutorType.Merkle] =
       AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER;
-    this.executors[ExecutorType.Starkware] =
-      AXOR_GOVERNANCE_PRIORITY_EXECUTOR_STARKWARE;
     this.governanceTokens = governanceTokens;
   }
 
@@ -346,10 +343,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     const proposalStrategy: GovernanceStrategy =
       GovernanceStrategy__factory.connect(strategy, provider);
 
-    const power = await proposalStrategy.getPropositionPowerAt(
-      user,
-      block.toString(),
-    );
+    const power = await proposalStrategy.getPropositionPowerNow(user);
     return formatEther(power);
   }
 
@@ -363,10 +357,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
     const proposalStrategy: GovernanceStrategy =
       GovernanceStrategy__factory.connect(strategy, provider);
 
-    const power = await proposalStrategy.getVotingPowerAt(
-      user,
-      block.toString(),
-    );
+    const power = await proposalStrategy.getVotingPowerNow(user);
     return formatEther(power);
   }
 
@@ -677,9 +668,7 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
         topForVotes,
         topAgainstVotes,
       };
-    }
-
-    else {
+    } else {
       const { topForVotes, topAgainstVotes } = await getSortedProposalVotes(
         this.subgraphClient,
         proposalId,
