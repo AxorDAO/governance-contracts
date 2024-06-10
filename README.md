@@ -50,3 +50,16 @@ npx hardhat deploy:phase-3
 Use these files to verify contracts 
 Update file ./verify-phase-1.sh
 Update file ./verify-phase-2.sh
+
+# Flatten contracts  :
+
+1. Install depencency tool for flatten contract 
+```
+sudo npm install -g sol-merger
+
+```
+2. Run script flatten all smart contracts 
+
+```
+node flatten.js
+```
