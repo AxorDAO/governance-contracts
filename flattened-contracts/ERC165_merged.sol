@@ -23,7 +23,6 @@ interface IERC165 {
   function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Implementation of the {IERC165} interface.
  *

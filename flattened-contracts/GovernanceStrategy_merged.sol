@@ -197,7 +197,6 @@ interface IERC20 {
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-// SPDX-License-Identifier: MIT
 /*
  * @dev Provides information about the current execution context, including the
  * sender of the transaction and its data. While these are generally available
@@ -219,7 +218,6 @@ abstract contract Context {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
  * checks.
@@ -381,7 +379,6 @@ library SafeMath {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Collection of functions related to the address type
  */
@@ -1046,7 +1043,6 @@ abstract contract GovernancePowerDelegationERC20Mixin is
   }
 }
 
-// SPDX-License-Identifier: MIT
 library console {
     address constant CONSOLE_ADDRESS =
         0x000000000000000000636F6e736F6c652e6c6f67;
@@ -2597,7 +2593,6 @@ library console {
 
 }
 
-// SPDX-License-Identifier: AGPL-3.0
 interface IAxorToken {
   function _totalSupplySnapshots(
     uint256

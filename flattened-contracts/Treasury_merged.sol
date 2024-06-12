@@ -428,7 +428,6 @@ abstract contract VersionedInitializable {
     uint256[50] private ______gap;
 }
 
-// SPDX-License-Identifier: AGPL-3.0
 /**
  * @title Treasury
  * @author Axor

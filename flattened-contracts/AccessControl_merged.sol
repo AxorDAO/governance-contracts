@@ -23,7 +23,6 @@ abstract contract Context {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev String operations.
  */
@@ -87,7 +86,6 @@ library Strings {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Interface of the ERC165 standard, as defined in the
  * https://eips.ethereum.org/EIPS/eip-165[EIP].
@@ -109,7 +107,6 @@ interface IERC165 {
   function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Implementation of the {IERC165} interface.
  *
@@ -133,7 +130,6 @@ abstract contract ERC165 is IERC165 {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev External interface of AccessControl declared to support ERC165 detection.
  */

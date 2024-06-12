@@ -577,7 +577,6 @@ contract LLCT is Context, IBEP20, Ownable {
   }
 }
 
-// SPDX-License-Identifier: MIT
 contract Usdt is Context, IBEP20, Ownable {
   using SafeMath for uint256;
 

@@ -23,7 +23,6 @@ abstract contract Context {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Contract module which provides a basic access control mechanism, where
  * there is an account (an owner) that can be granted exclusive access to
@@ -88,7 +87,6 @@ contract Ownable is Context {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title Proxy
  * @dev Implements delegation of calls to other contracts, with proper
@@ -158,7 +156,6 @@ abstract contract Proxy {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Collection of functions related to the address type
  */
@@ -218,7 +215,6 @@ library Address {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title BaseUpgradeabilityProxy
  * @dev This contract implements a proxy that allows to change the
@@ -278,7 +274,6 @@ contract BaseUpgradeabilityProxy is Proxy {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title UpgradeabilityProxy
  * @dev Extends BaseUpgradeabilityProxy with a constructor for initializing
@@ -303,7 +298,6 @@ contract UpgradeabilityProxy is BaseUpgradeabilityProxy {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title BaseAdminUpgradeabilityProxy
  * @dev This contract combines an upgradeability proxy with an authorization
@@ -426,7 +420,6 @@ contract BaseAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title AdminUpgradeabilityProxy
  * @dev Extends from BaseAdminUpgradeabilityProxy with a constructor for
@@ -456,7 +449,6 @@ contract AdminUpgradeabilityProxy is BaseAdminUpgradeabilityProxy, Upgradeabilit
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title ProxyAdmin
  * @dev This contract is the admin of a proxy, and is in charge

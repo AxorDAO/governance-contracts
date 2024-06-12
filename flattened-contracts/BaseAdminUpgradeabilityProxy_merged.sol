@@ -71,7 +71,6 @@ abstract contract Proxy {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Collection of functions related to the address type
  */
@@ -131,7 +130,6 @@ library Address {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title BaseUpgradeabilityProxy
  * @dev This contract implements a proxy that allows to change the
@@ -191,7 +189,6 @@ contract BaseUpgradeabilityProxy is Proxy {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title UpgradeabilityProxy
  * @dev Extends BaseUpgradeabilityProxy with a constructor for initializing
@@ -216,7 +213,6 @@ contract UpgradeabilityProxy is BaseUpgradeabilityProxy {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @title BaseAdminUpgradeabilityProxy
  * @dev This contract combines an upgradeability proxy with an authorization

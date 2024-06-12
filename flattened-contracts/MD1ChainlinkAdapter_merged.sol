@@ -751,7 +751,6 @@ library Chainlink {
   }
 }
 
-// SPDX-License-Identifier: MIT
 interface ENSInterface {
 
   // Logged when the owner of a node assigns a new owner to a subnode.
@@ -830,7 +829,6 @@ interface ENSInterface {
 
 }
 
-// SPDX-License-Identifier: MIT
 interface LinkTokenInterface {
 
   function allowance(
@@ -934,7 +932,6 @@ interface LinkTokenInterface {
 
 }
 
-// SPDX-License-Identifier: MIT
 interface ChainlinkRequestInterface {
   function oracleRequest(
     address sender,
@@ -955,7 +952,6 @@ interface ChainlinkRequestInterface {
   ) external;
 }
 
-// SPDX-License-Identifier: MIT
 interface OracleInterface {
   function fulfillOracleRequest(
     bytes32 requestId,
@@ -983,7 +979,6 @@ interface OracleInterface {
     );
 }
 
-// SPDX-License-Identifier: MIT
 interface OperatorInterface is
   ChainlinkRequestInterface,
   OracleInterface {
@@ -1025,7 +1020,6 @@ interface OperatorInterface is
 
 }
 
-// SPDX-License-Identifier: MIT
 interface PointerInterface {
   
   function getAddress()
@@ -1793,7 +1787,6 @@ library MD1Types {
   }
 }
 
-// SPDX-License-Identifier: AGPL-3.0
 /**
  * @title MD1ChainlinkAdapter
  * @author Axor

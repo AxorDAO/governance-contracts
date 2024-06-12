@@ -203,7 +203,6 @@ abstract contract Context {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev String operations.
  */
@@ -267,7 +266,6 @@ library Strings {
   }
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Interface of the ERC165 standard, as defined in the
  * https://eips.ethereum.org/EIPS/eip-165[EIP].
@@ -289,7 +287,6 @@ interface IERC165 {
   function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
-// SPDX-License-Identifier: MIT
 /**
  * @dev Implementation of the {IERC165} interface.
  *
@@ -2010,7 +2007,6 @@ abstract contract SM1StakedBalances is
   }
 }
 
-// SPDX-License-Identifier: AGPL-3.0
 /**
  * @title SM1Admin
  * @author Axor
