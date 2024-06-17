@@ -63,3 +63,4 @@ sudo npm install -g sol-merger
 ```
 node flatten.js
 ```
+`sol-merger` has some bug not merged interface. So we need fix it manual when compile flattened file at Remix

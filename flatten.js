@@ -2,11 +2,39 @@ const fs = require('fs-extra');
 const path = require('path');
 const { exec } = require('child_process');
 
-const contractsDir = 'contracts'; // Path to your Solidity contracts
+const contracts = [
+  './contracts/governance/token/AxorToken.sol',
+  './contracts/governance/AxorGovernor.sol',
+  './contracts/governance/executor/Executor.sol',
+  './contracts/dependencies/makerdao/multicall2.sol',
+  './contracts/treasury/Treasury.sol',
+  './contracts/dependencies/open-zeppelin/ProxyAdmin.sol',
+  './contracts/dependencies/open-zeppelin/InitializableAdminUpgradeabilityProxy.sol',
+  './contracts/safety/v1/SafetyModuleV1.sol',
+  './contracts/governance/strategy/GovernanceStrategy.sol',
+  './contracts/treasury/TreasuryVester.sol',
+  './contracts/liquidity/v1/LiquidityStakingV1.sol',
+  './contracts/merkle-distributor/v1/MerkleDistributorV1.sol',
+  './contracts/merkle-distributor/v1/oracles/MD1ChainlinkAdapter.sol',
+  './contracts/misc/ClaimsProxy.sol',
+];
+
 const outputDir = 'flattened-contracts'; // Directory to save the flattened files
 
 // Ensure the output directory exists
 fs.ensureDirSync(outputDir);
+
+// Function to remove duplicate SPDX license identifiers from Solidity code
+const removeDuplicateLicenses = (content) => {
+    const licenseRegex = /\/\/\s*SPDX-License-Identifier:\s*[A-Za-z0-9.-]+\s*/g;
+    const licenses = content.match(licenseRegex);
+    if (licenses && licenses.length > 0) {
+      const firstLicenseIndex = content.indexOf(licenses[0]);
+      const contentWithoutLicenses = content.replace(licenseRegex, '');
+      content = contentWithoutLicenses.slice(0, firstLicenseIndex) + licenses[0] + contentWithoutLicenses.slice(firstLicenseIndex).trim();
+    }
+    return content;
+  };
 
 // Function to flatten a Solidity file
 const flattenContract = (filePath) => {
@@ -21,14 +49,30 @@ const flattenContract = (filePath) => {
         console.error(`stderr: ${stderr}`);
         reject(error);
       } else {
-        // Move the merged file to the output directory
-        fs.move(sourceOutputFilePath, outputFilePath, { overwrite: true }, (moveError) => {
-          if (moveError) {
-            console.error(`Error moving file ${sourceOutputFilePath} to ${outputFilePath}: ${moveError}`);
-            reject(moveError);
+        // Read the merged file, remove duplicate licenses, and then write it back
+        fs.readFile(sourceOutputFilePath, 'utf8', (readError, data) => {
+          if (readError) {
+            console.error(`Error reading merged file ${sourceOutputFilePath}: ${readError}`);
+            reject(readError);
           } else {
-            console.log(`Flattened and moved ${filePath} to ${outputFilePath}`);
-            resolve();
+            const cleanedContent = removeDuplicateLicenses(data);
+            fs.writeFile(outputFilePath, cleanedContent, 'utf8', (writeError) => {
+              if (writeError) {
+                console.error(`Error writing cleaned file to ${outputFilePath}: ${writeError}`);
+                reject(writeError);
+              } else {
+                // Remove the original merged file after processing
+                fs.remove(sourceOutputFilePath, (removeError) => {
+                  if (removeError) {
+                    console.error(`Error removing temporary merged file ${sourceOutputFilePath}: ${removeError}`);
+                    reject(removeError);
+                  } else {
+                    console.log(`Flattened, cleaned, and moved ${filePath} to ${outputFilePath}`);
+                    resolve();
+                  }
+                });
+              }
+            });
           }
         });
       }
@@ -36,40 +80,18 @@ const flattenContract = (filePath) => {
   });
 };
 
-// Function to recursively get all Solidity files in a directory
-const getSolidityFiles = (dir) => {
-  let results = [];
-  const list = fs.readdirSync(dir);
-  list.forEach((file) => {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-    if (stat && stat.isDirectory()) {
-      // Recurse into subdirectory
-       // Skip the 'test' directory
-       if (file !== 'test') {
-          results = results.concat(getSolidityFiles(filePath));
-       }
-    } else if (filePath.endsWith('.sol')) {
-      // Add .sol file to results
-      results.push(filePath);
-    }
-  });
-  return results;
-};
-
-// Function to flatten all contracts in the directory
+// Function to flatten all specified contracts
 const flattenAllContracts = async () => {
   try {
-    const files = getSolidityFiles(contractsDir);
-    if (files.length === 0) {
-      console.log('No Solidity files found in the specified directory.');
+    if (contracts.length === 0) {
+      console.log('No Solidity files specified.');
       return;
     }
 
-    for (const file of files) {
+    for (const file of contracts) {
       await flattenContract(file);
     }
-    console.log('All contracts have been flattened and moved successfully.');
+    console.log('All specified contracts have been flattened, cleaned, and moved successfully.');
   } catch (error) {
     console.error('Error flattening contracts:', error);
   }
