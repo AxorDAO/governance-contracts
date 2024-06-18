@@ -527,15 +527,15 @@ export async function deployPhase2({
       await merkleDistributor.setRewardsOracle(oracleAdapterAddress),
     );
 
-    await waitForTx(
-      await contract.writeOracleData(
-        '0x68443989a4d923b5b755831602d5780b751029b9beba0db80dd707bdb6ed473c',
-        0,
-        '0xde48ba7517a0cccb0153c65183e47bd2492abc18329495865e43f9057641fb31',
-      ),
-    );
+    // await waitForTx(
+    //   await contract.writeOracleData(
+    //     '0x68443989a4d923b5b755831602d5780b751029b9beba0db80dd707bdb6ed473c',
+    //     0,
+    //     '0xde48ba7517a0cccb0153c65183e47bd2492abc18329495865e43f9057641fb31',
+    //   ),
+    // );
 
-    await waitForTx(await merkleDistributor.proposeRoot());
+    // await waitForTx(await merkleDistributor.proposeRoot());
 
     await writeAddress(
       networkName,

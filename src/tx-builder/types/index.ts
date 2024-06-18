@@ -63,7 +63,7 @@ export enum Network {
 }
 
 export enum ChainId {
-  main = 1,
+  main = 42161,
   ropsten = 3,
   goerli = 5,
   hardhat = 31337,
