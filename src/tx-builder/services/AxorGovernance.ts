@@ -645,41 +645,17 @@ export default class AxorGovernanceService extends BaseService<AxorGovernor> {
   public async getProposalMetadata(
     proposalId: number,
     limit: number,
-    network = Network.main,
   ): Promise<ProposalMetadata> {
-    if (network === Network.main) {
-      const [topForVotes, topAgainstVotes] = await Promise.all([
-        executeGetSortedProposalVotesQuery(
-          this.subgraphClient,
-          proposalId,
-          true,
-          limit,
-        ),
-        executeGetSortedProposalVotesQuery(
-          this.subgraphClient,
-          proposalId,
-          false,
-          limit,
-        ),
-      ]);
-
-      return {
-        id: proposalId,
-        topForVotes,
-        topAgainstVotes,
-      };
-    } else {
-      const { topForVotes, topAgainstVotes } = await getSortedProposalVotes(
-        this.subgraphClient,
-        proposalId,
-        limit,
-      );
-      return {
-        id: proposalId,
-        topForVotes,
-        topAgainstVotes,
-      };
-    }
+    const { topForVotes, topAgainstVotes } = await getSortedProposalVotes(
+      this.subgraphClient,
+      proposalId,
+      limit,
+    );
+    return {
+      id: proposalId,
+      topForVotes,
+      topAgainstVotes,
+    };
   }
 
   public async getGovernanceVoters(

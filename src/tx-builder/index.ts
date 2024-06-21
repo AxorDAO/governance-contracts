@@ -2,10 +2,10 @@ import { Client, createClient } from '@urql/core';
 import { providers } from 'ethers';
 
 import {
-  MAINNET_SUBGRAPH_URL,
   GOERLI_SUBGRAPH_URL,
   BSC_TESTNET_SUBGRAPH_URL,
   ARBITRUM_TESTNET_SUBGRAPH_URL,
+  ARBITRUM_SUBGRAPH_URL,
 } from './config';
 import AxorGovernance from './services/AxorGovernance';
 import AxorGovernanceService from './services/AxorGovernance';
@@ -113,8 +113,8 @@ export default class TxBuilder extends BaseTxBuilder {
       case Network.arbitrum_testnet:
         subgraphClient = createClient({ url: ARBITRUM_TESTNET_SUBGRAPH_URL });
         break;
-      case Network.main:
-        subgraphClient = createClient({ url: MAINNET_SUBGRAPH_URL });
+      case Network.arbitrum:
+        subgraphClient = createClient({ url: ARBITRUM_SUBGRAPH_URL });
         break;
       case Network.hardhat:
         console.log(

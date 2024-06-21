@@ -59,16 +59,18 @@ export enum Network {
   hardhat = 'hardhat',
   goerli = 'goerli',
   bsc_testnet = 'bsc_testnet',
-  arbitrum_testnet = 'arbitrum_testnet'
+  arbitrum_testnet = 'arbitrum_testnet',
+  arbitrum = 'arbitrum',
 }
 
 export enum ChainId {
-  main = 42161,
+  main = 1,
   ropsten = 3,
   goerli = 5,
   hardhat = 31337,
   bsc_testnet = 97,
-  arbitrum_testnet = 421614
+  arbitrum_testnet = 421614,
+  arbitrum = 42161,
 }
 
 export enum eEthereumTxType {

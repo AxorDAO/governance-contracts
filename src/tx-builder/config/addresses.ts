@@ -1,4 +1,3 @@
-// prettier-ignore
 import {
   ClaimsProxyConfigType,
   GovernanceConfigType,
@@ -11,6 +10,7 @@ import {
   MulticallConfigType,
 } from '../types';
 
+// prettier-ignore
 export const axorGovernanceAddresses: GovernanceConfigType = {
   [Network.goerli]: {
     AXOR_GOVERNANCE: '0x81f42A02aE671f5d6e12523D5d0789B683C17F54',
@@ -33,7 +33,7 @@ export const axorGovernanceAddresses: GovernanceConfigType = {
     AXOR_GOVERNANCE_EXECUTOR_LONG: '0xaaB743DB4601b0fE9e3e776c7d3f3c5D496F943F',
     AXOR_GOVERNANCE_EXECUTOR_MERKLE_PAUSER: '0xBC49D17C2387A73cCf4c14FA5916172D1958e404',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     AXOR_GOVERNANCE: '0xD351b4e1DA63Bd19F4608f9a02E6E922F7d3EDAF',
     AXOR_GOVERNANCE_EXECUTOR_SHORT: '0xCE2Fdf6D9ebb3d712CE23C1A576c742f03Bfac34',
     AXOR_GOVERNANCE_EXECUTOR_LONG: '0x8e54f03f41c4d1b66d8583c48cf381baae087Fa3',
@@ -52,11 +52,12 @@ export const axorTokenAddresses: TokenConfigType = {
   [Network.arbitrum_testnet]: {
     TOKEN_ADDRESS: '0xfD25dc6C6682B6ff007F0E016aC4C689fEDD6087',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     TOKEN_ADDRESS: '0xB4F90Ec286Affb3f1e307153b47D97A7980ef204',
   },
 };
 
+// prettier-ignore
 export const axorTreasuryAddresses: TreasuryConfigType = {
   [Network.goerli]: {
     REWARDS_TREASURY_ADDRESS: '0x8B4539FCB24Cdab59B5FABe3257402547AAF4dc3',
@@ -76,7 +77,7 @@ export const axorTreasuryAddresses: TreasuryConfigType = {
     COMMUNITY_TREASURY_ADDRESS: '0x26D7E8DBB5f6b7581b36597B11FAD01Dc6def7a7',
     COMMUNITY_TREASURY_VESTER_ADDRESS: '0x1E3Ec2E10Ac9Bf0a619ecbd42E2aF73E64Cc63a2',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     REWARDS_TREASURY_ADDRESS: '0x9Eed59e3cDD4b4196FfFa4D50C57AF48E0B2a0D7',
     REWARDS_TREASURY_VESTER_ADDRESS: '0x7370bAc352223feF83c5E97Ac8169dd7d2751aaF',
     COMMUNITY_TREASURY_ADDRESS: '0x62019e7cFe4258086d67436368112B398074D340',
@@ -94,7 +95,7 @@ export const stakingAddresses: StakingConfigType = {
   [Network.arbitrum_testnet]: {
     SAFETY_MODULE_ADDRESS: '0x452FBaE1a6D093A2350ECb5957c851E6D1B60C21',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     SAFETY_MODULE_ADDRESS: '0xD09b086ffbc177C371Fd1FB7b71A286A832352b4',
   },
 };
@@ -109,7 +110,7 @@ export const liquidityModuleAddresses: LiquidityModuleConfigType = {
   [Network.arbitrum_testnet]: {
     LIQUIDITY_MODULE_ADDRESS: '0x78372edE598c96aB84e9048437C57b412bBcf947',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     LIQUIDITY_MODULE_ADDRESS: '0xc4832315Ed21Ee6301952C201A2f5128e4a564c9',
   },
 };
@@ -124,7 +125,7 @@ export const merkleDistributorAddresses: MerkleDistributorConfigType = {
   [Network.arbitrum_testnet]: {
     MERKLE_DISTRIBUTOR_ADDRESS: '0x666514545a3421b6a78da7B99fc9E04E937d2b85',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     MERKLE_DISTRIBUTOR_ADDRESS: '0x725a66412EDd250C233f702D437Fa31067bEbE72',
   },
 };
@@ -139,7 +140,7 @@ export const claimsProxyAddresses: ClaimsProxyConfigType = {
   [Network.arbitrum_testnet]: {
     CLAIMS_PROXY_ADDRESS: '0x4CFEE7763f7eA8EF8f649eF9aB78162D4d04f015',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     CLAIMS_PROXY_ADDRESS: '0xCB65c4540776068326FEF5A42F5e13C268Ff9988',
   },
 };
@@ -154,7 +155,7 @@ export const multicallAddresses: MulticallConfigType = {
   [Network.arbitrum_testnet]: {
     MULTICALL_ADDRESS: '0x184DD06B9e16Bf8d814B299dca0922FA1a087CC4',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     MULTICALL_ADDRESS: '0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8',
   },
 };
@@ -169,7 +170,7 @@ export const collateralToken = {
   [Network.arbitrum_testnet]: {
     ADDRESS: '0xd6beAd80703604992BF47Ea1FD6f6A134CDB3c7b',
   },
-  [Network.main]: {
+  [Network.arbitrum]: {
     ADDRESS: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
   },
 };

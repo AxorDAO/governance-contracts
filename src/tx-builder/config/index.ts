@@ -28,14 +28,14 @@ export const MERKLE_DISTRIBUTOR_REWARDS_PER_EPOCH: number =
 export const RETROACTIVE_MINING_REWARDS: tStringDecimalUnits =
   '50,309,197.21323933';
 
-const BASE_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/';
 export const GOERLI_SUBGRAPH_URL =
   'https://api.studio.thegraph.com/query/66875/axor-governance/version/latest';
 export const BSC_TESTNET_SUBGRAPH_URL =
   'https://api.studio.thegraph.com/query/47685/axor-bsc-testnet/version/latest';
 export const ARBITRUM_TESTNET_SUBGRAPH_URL =
   'https://api.studio.thegraph.com/query/66875/axor-governance-test/version/latest';
-export const MAINNET_SUBGRAPH_URL = `${BASE_SUBGRAPH_URL}`;
+export const ARBITRUM_SUBGRAPH_URL =
+  'https://api.studio.thegraph.com/query/76982/axor-governance/version/latest';
 
 export const gasLimitRecommendations: GasRecommendationType = {
   [ProtocolAction.default]: {
