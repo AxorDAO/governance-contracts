@@ -8,7 +8,7 @@ import {
   UserRewardBalances,
 } from '../types/GovernanceReturnTypes';
 
-const IPFS_ENDPOINT = 'https://cloudflare-ipfs.com/ipfs';
+const IPFS_ENDPOINT = 'https://hedgies.mypinata.cloud/ipfs';
 
 export function getLink(hash: string): string {
   return `${IPFS_ENDPOINT}/${hash}`;
